@@ -861,14 +861,12 @@
                     <div class="field">
                         <label for="tahun_ajaran">Tahun ajaran</label>
 
-                        <select id="tahun_ajaran" name="tahun_ajaran" required>
-                            <option value="" selected disabled>
-                                Pilih tingkat kelas terlebih dahulu
-                            </option>
+                        <select id="tahun_ajaran" name="tahun_ajaran" disabled>
+                            <option selected>Memuat…</option>
                         </select>
 
                         <span class="field-hint">
-                            Tahun ajaran ditentukan otomatis berdasarkan tingkat kelas.
+                            Tahun ajaran berjalan, sama untuk semua kelas.
                         </span>
                     </div>
                 </section>
@@ -1136,35 +1134,21 @@
     }
 
     function updateTahunAjaran() {
-        const t = parseInt(tingkatEl.value, 10);
-
-        if (![7, 8, 9].includes(t)) {
-            tahunAjaranEl.innerHTML = `
-                <option value="" selected disabled>
-                    Pilih tingkat kelas terlebih dahulu
-                </option>
-            `;
-            return;
-        }
-
-        // Tahun ajaran Indonesia dimulai bulan Juli.
-        // Kelas 7 = angkatan tahun ajaran aktif,
-        // kelas 8 = satu tahun sebelumnya,
-        // kelas 9 = dua tahun sebelumnya.
+        // Tahun ajaran SAMA untuk semua kelas (dimulai bulan Juli).
+        // Yang berbeda antar tingkat hanya angkatan (tahun masuk),
+        // dan itu dihitung otomatis oleh server dari kelas.
         const now = new Date();
-        const bulanSekarang = now.getMonth() + 1;
-        const tahunSekarang = now.getFullYear();
-        const tahunAjaranAktif = bulanSekarang >= 7
-            ? tahunSekarang
-            : tahunSekarang - 1;
-
-        const tahunAwal = tahunAjaranAktif - (t - 7);
+        const tahunAwal = (now.getMonth() + 1) >= 7
+            ? now.getFullYear()
+            : now.getFullYear() - 1;
         const kode = `${tahunAwal}/${tahunAwal + 1}`;
 
         tahunAjaranEl.innerHTML = `
             <option value="${kode}" selected>${kode}</option>
         `;
     }
+
+    updateTahunAjaran();
 
     tingkatEl.addEventListener('change', updateKelasCode);
     rombelEl.addEventListener('change', updateKelasCode);

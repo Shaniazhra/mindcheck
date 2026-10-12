@@ -12,9 +12,10 @@
         :root {
             --navy: #0F2747; --brand: #1D5FBF; --brand-soft: #E8F0FB; --bg: #F3F5F9;
             --ink: #14233B; --ink-2: #475569; --ink-3: #6B7A90; --line: #E3E8F0;
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;   --ok-bg: #E3F5ED;
             --warn: #B7690B; --warn-bg: #FDF1DC;
-            --act: #6D3FD0;  --act-bg: #EEE8FB;
+            --act: #C8303C;  --act-bg: #FDECEE;
             --ai: #0A78B5;   --ai-bg: #E2F2FA;
             /* Sudut mengikuti halaman Riwayat */
             --r-btn: 11px;    /* tombol utama */
@@ -118,6 +119,24 @@
         tr.row-risiko td:first-child { box-shadow: inset 3px 0 0 var(--ai); }
         tr[data-row]:not(.row-risiko):hover { background: #F8FAFD; }
         @media (prefers-reduced-motion: reduce) { .stat { transition: none !important; } }
+
+        /* ===== Perapian tampilan mobile ===== */
+        @media (max-width: 639px) {
+            .hero { padding: 22px 18px; border-radius: 16px; }
+            .hero-ring.r1 { width: 260px; height: 260px; right: -100px; top: -110px; }
+            .hero-ring.r2 { display: none; }
+            .card { border-radius: 12px; }
+            .h-title { font-size: 16px; }
+            .h-sub { font-size: 13px; }
+            .stat { padding: 12px 12px 10px; }
+            .stat .tile { width: 32px; height: 32px; }
+            .stat-num { font-size: 1.45rem; }
+            .prog { padding: 12px 14px; }
+            /* Baris siswa: teks di atas, tombol selebar penuh di bawah */
+            .att { flex-wrap: wrap; padding: 12px; }
+            .att > div:first-child { flex: 1 1 100%; }
+            .att > .btn-line { width: 100%; justify-content: center; }
+        }
     </style>
     <link rel="stylesheet" href="{{ asset('css/tema.css') }}">
 </head>
@@ -145,7 +164,7 @@
             $rekColor    = 'text-[#0A78B5] font-semibold';
         } elseif ($tindakan) {
             $rekomendasi = 'Tindakan segera';
-            $rekColor    = 'text-[#6D3FD0] font-semibold';
+            $rekColor    = 'text-[#C8303C] font-semibold';
         } elseif ($keputusan === 'Borderline' || $isRisikoAI) {
             $rekomendasi = 'Pemantauan aktif';
             $rekColor    = 'text-[#B7690B] font-semibold';
@@ -207,7 +226,7 @@
         ['label' => 'Total skrining',  'val' => $totalSiswa,    'sub' => 'Hasil tersimpan',                          'icon' => 'fact_check',          'c' => '#1D5FBF', 'cbg' => '#E8F0FB', 'ping' => false],
         ['label' => 'Normal',          'val' => $cntNormal,     'sub' => $pct($cntNormal) . '% • Kondisi baik',      'icon' => 'sentiment_satisfied', 'c' => '#0F8A5F', 'cbg' => '#E3F5ED', 'ping' => false],
         ['label' => 'Borderline',      'val' => $cntBorderline, 'sub' => $pct($cntBorderline) . '% • Perlu dipantau','icon' => 'visibility',          'c' => '#B7690B', 'cbg' => '#FDF1DC', 'ping' => false],
-        ['label' => 'Abnormal',        'val' => $cntAbnormal,   'sub' => $pct($cntAbnormal) . '% • Perlu tindakan',  'icon' => 'priority_high',       'c' => '#6D3FD0', 'cbg' => '#EEE8FB', 'ping' => false],
+        ['label' => 'Abnormal',        'val' => $cntAbnormal,   'sub' => $pct($cntAbnormal) . '% • Perlu tindakan',  'icon' => 'priority_high',       'c' => '#C8303C', 'cbg' => '#FDECEE', 'ping' => false],
         ['label' => 'Pola risiko (AI)','val' => $cntRisikoAI,   'sub' => 'Risiko tersembunyi',                       'icon' => 'psychology',          'c' => '#0A78B5', 'cbg' => '#E2F2FA', 'ping' => $cntRisikoAI > 0, 'wide' => true],
     ];
 @endphp
@@ -251,12 +270,12 @@
         </span>
     </header>
 
-    <div class="flex-1 p-4 md:p-8 space-y-6 max-w-[1400px] w-full mx-auto">
+    <div class="flex-1 p-4 md:p-8 space-y-5 md:space-y-6 max-w-[1400px] w-full mx-auto">
 
         {{-- ===== Sapaan + ringkasan ===== --}}
         <section class="hero">
             <div class="hero-ring r1"></div><div class="hero-ring r2"></div>
-            <div class="relative flex flex-col lg:flex-row lg:items-center justify-between gap-7">
+            <div class="relative flex flex-col lg:flex-row lg:items-center justify-between gap-5 md:gap-7">
                 <div class="min-w-0 max-w-2xl">
                     <span class="hero-chip">
                         <span class="material-symbols-outlined" style="font-size:16px">{{ $cntTindakan > 0 ? 'notifications_active' : 'verified' }}</span>
@@ -277,7 +296,7 @@
                         @endif
                     </p>
                 </div>
-                <a href="/riwayat" class="no-print inline-flex items-center justify-center gap-2 px-5 py-3 rounded-[11px] bg-white text-[#0F2747] hover:bg-[#E8F0FB] text-[13.5px] font-semibold transition-colors shadow-lg shadow-black/10 flex-shrink-0 self-start lg:self-center">
+                <a href="/riwayat" class="no-print inline-flex items-center justify-center gap-2 px-5 py-3 rounded-[11px] bg-white text-[#0F2747] hover:bg-[#E8F0FB] text-[13.5px] font-semibold transition-colors shadow-lg shadow-black/10 flex-shrink-0 self-start lg:self-center w-full sm:w-auto">
                     <span class="material-symbols-outlined" style="font-size:18px">clinical_notes</span>
                     Buka Riwayat Skrining
                 </a>
@@ -308,7 +327,7 @@
 
         {{-- ===== Sebaran hasil ===== --}}
         @if($totalSiswa > 0)
-        <section class="card p-5 md:p-6">
+        <section class="card p-4 sm:p-5 md:p-6">
             <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
                 <div class="flex items-center gap-3">
                     <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">donut_small</span></span>
@@ -316,27 +335,27 @@
                 </div>
                 <p class="text-[13px] text-[#6B7A90]">Berdasarkan hasil SDQ dari {{ $totalSiswa }} siswa</p>
             </div>
-            <div class="flex h-3 w-full rounded-full overflow-hidden bg-[#EEF1F6]" role="img"
+            <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#EEF1F6]" role="img"
                  aria-label="Normal {{ $pct($cntNormal) }}%, Borderline {{ $pct($cntBorderline) }}%, Abnormal {{ $pct($cntAbnormal) }}%">
                 <div data-bar class="bg-[#10A674] animate-bar" style="width:{{ $pct($cntNormal) }}%"></div>
                 <div data-bar class="bg-[#EBA024] animate-bar" style="width:{{ $pct($cntBorderline) }}%"></div>
-                <div data-bar class="bg-[#7C4DDB] animate-bar" style="width:{{ $pct($cntAbnormal) }}%"></div>
+                <div data-bar class="bg-[#DC3A46] animate-bar" style="width:{{ $pct($cntAbnormal) }}%"></div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                <div class="flex items-center gap-2.5 rounded-xl border border-[#CDEBDD] bg-[#F4FBF8] px-4 py-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-4">
+                <div class="flex items-center gap-2.5 rounded-xl border border-[#CDEBDD] bg-[#F4FBF8] px-3.5 py-2.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#10A674]"></span>
                     <span class="text-[13px] text-[#475569]">Normal</span>
                     <strong class="ml-auto text-[13.5px] text-[#0F8A5F]">{{ $cntNormal }} <span class="text-[12px] font-medium text-[#6B7A90]">({{ $pct($cntNormal) }}%)</span></strong>
                 </div>
-                <div class="flex items-center gap-2.5 rounded-xl border border-[#F4DFB6] bg-[#FFFAF0] px-4 py-3">
+                <div class="flex items-center gap-2.5 rounded-xl border border-[#F4DFB6] bg-[#FFFAF0] px-3.5 py-2.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#EBA024]"></span>
                     <span class="text-[13px] text-[#475569]">Borderline</span>
                     <strong class="ml-auto text-[13.5px] text-[#B7690B]">{{ $cntBorderline }} <span class="text-[12px] font-medium text-[#6B7A90]">({{ $pct($cntBorderline) }}%)</span></strong>
                 </div>
-                <div class="flex items-center gap-2.5 rounded-xl border border-[#DDD2F5] bg-[#FAF7FF] px-4 py-3">
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#7C4DDB]"></span>
+                <div class="flex items-center gap-2.5 rounded-xl border border-[#F3C9CD] bg-[#FFF6F6] px-3.5 py-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#DC3A46]"></span>
                     <span class="text-[13px] text-[#475569]">Abnormal</span>
-                    <strong class="ml-auto text-[13.5px] text-[#6D3FD0]">{{ $cntAbnormal }} <span class="text-[12px] font-medium text-[#6B7A90]">({{ $pct($cntAbnormal) }}%)</span></strong>
+                    <strong class="ml-auto text-[13.5px] text-[#C8303C]">{{ $cntAbnormal }} <span class="text-[12px] font-medium text-[#6B7A90]">({{ $pct($cntAbnormal) }}%)</span></strong>
                 </div>
             </div>
         </section>
@@ -344,7 +363,7 @@
 
         {{-- ===== Perkembangan siswa ===== --}}
         @if($totalSiswa > 0)
-        <section class="card p-5 md:p-6">
+        <section class="card p-4 sm:p-5 md:p-6">
             <div class="flex items-start justify-between gap-3 mb-4 flex-wrap">
                 <div class="flex items-start gap-3">
                     <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">monitoring</span></span>
@@ -396,7 +415,7 @@
         {{-- ===== Perlu perhatian + Subskala ===== --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-            <section class="lg:col-span-7 card p-5 md:p-6 flex flex-col">
+            <section class="lg:col-span-7 card p-4 sm:p-5 md:p-6 flex flex-col">
                 <div class="flex items-start justify-between gap-3 mb-4">
                     <div class="flex items-start gap-3">
                         <span class="ico" style="background:var(--act-bg);color:var(--act)"><span class="material-symbols-outlined" style="font-size:20px">notifications_active</span></span>
@@ -413,7 +432,7 @@
                 <div class="space-y-2.5 flex-1">
                     @forelse($perluPerhatian as $s)
                     @php $a = $analisa($s); @endphp
-                    <div class="att" style="--c:{{ $a['tindakan'] ? '#6D3FD0' : '#0A78B5' }};--cbg:{{ $a['tindakan'] ? '#FAF8FF' : '#F3FAFE' }}">
+                    <div class="att" style="--c:{{ $a['tindakan'] ? '#C8303C' : '#0A78B5' }};--cbg:{{ $a['tindakan'] ? '#FFF7F7' : '#F3FAFE' }}">
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="avatar">{{ strtoupper(substr($s->nama ?? 'S', 0, 2)) }}</div>
                             <div class="min-w-0">
@@ -447,60 +466,88 @@
                 @endif
             </section>
 
-            <section class="lg:col-span-5 card p-5 md:p-6 flex flex-col">
+            <section class="lg:col-span-5 card p-4 sm:p-5 md:p-6 flex flex-col">
                 <div class="flex items-start gap-3 mb-5">
                     <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">bar_chart</span></span>
                     <div>
                         <h4 class="h-title">Rata-rata Skor Subskala</h4>
-                        <p class="h-sub">Dari semua siswa yang sudah mengisi skrining</p>
+                        <p class="h-sub">Rata-rata skor 0–10 dari semua hasil skrining SDQ</p>
                     </div>
                 </div>
                 @php
+                    // Batas mengikuti SDQ self-report 3 kategori (usia 11–17). Dua garis per batang:
+                    //   border = garis kuning (batang melewatinya jadi Borderline)
+                    //   batas  = garis merah  (batang melewatinya jadi Abnormal)
+                    //   Prososial dibaca terbalik: batang jadi kuning jika turun di bawah 6, merah jika di bawah 5.
                     $sdqBars = [
-                        ['label' => 'Gejala Emosional',     'val' => round($hasilSdq->avg('skor_emotional')/10*100),     'color' => '#3B82F6', 'batas' => 70],
-                        ['label' => 'Masalah Perilaku',     'val' => round($hasilSdq->avg('skor_conduct')/10*100),       'color' => '#1D4ED8', 'batas' => 50],
-                        ['label' => 'Hiperaktivitas',       'val' => round($hasilSdq->avg('skor_hyperactivity')/10*100), 'color' => '#EBA024', 'batas' => 60],
-                        ['label' => 'Masalah Teman Sebaya', 'val' => round($hasilSdq->avg('skor_peer')/10*100),          'color' => '#0A78B5', 'batas' => 50],
-                        ['label' => 'Perilaku Prososial',   'val' => round($hasilSdq->avg('skor_prosocial')/10*100),     'color' => '#10A674', 'batas' => 40],
+                        ['label' => 'Gejala Emosional',     'key' => 'skor_emotional',     'border' => 6, 'batas' => 7, 'rendah' => false],
+                        ['label' => 'Masalah Perilaku',     'key' => 'skor_conduct',       'border' => 4, 'batas' => 5, 'rendah' => false],
+                        ['label' => 'Hiperaktivitas',       'key' => 'skor_hyperactivity', 'border' => 6, 'batas' => 7, 'rendah' => false],
+                        ['label' => 'Masalah Teman Sebaya', 'key' => 'skor_peer',          'border' => 4, 'batas' => 6, 'rendah' => false],
+                        ['label' => 'Perilaku Prososial',   'key' => 'skor_prosocial',     'border' => 6, 'batas' => 5, 'rendah' => true],
                     ];
+
+                    // Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal
+                    $warnaStatus = ['ok' => '#10A674', 'warn' => '#EBA024', 'abn' => '#DC3A46', 'none' => '#CBD5E1'];
                 @endphp
                 <div class="flex-1 flex flex-col justify-between gap-4">
                     @foreach($sdqBars as $bar)
+                    @php
+                        // Dibulatkan 1 desimal supaya warna sama dengan angka yang tampil
+                        $avg    = round((float) $hasilSdq->avg($bar['key']), 1);
+                        $val    = round($avg / 10 * 100);
+                        $avgTxt = number_format($avg, 1, ',', '.');
+
+                        // Warna batang mengikuti garis yang dilewati rata-rata
+                        if ($totalSiswa === 0) {
+                            $st = 'none';
+                        } elseif ($bar['rendah']) {
+                            $st = $avg < $bar['batas'] ? 'abn' : ($avg < $bar['border'] ? 'warn' : 'ok');
+                        } else {
+                            $st = $avg >= $bar['batas'] ? 'abn' : ($avg >= $bar['border'] ? 'warn' : 'ok');
+                        }
+                        $warna = $warnaStatus[$st];
+
+                        $opKuning = $bar['rendah'] ? '<' : '≥';
+                        $ketKuning = 'Kuning ' . $opKuning . ' ' . $bar['border'];
+                        $ketMerah  = 'Merah '  . $opKuning . ' ' . $bar['batas'];
+                    @endphp
                     <div>
                         <div class="flex justify-between items-center text-[13.5px] mb-1.5 gap-2">
                             <span class="text-[#475569] flex items-center gap-2 min-w-0">
-                                <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ $bar['color'] }}"></span>
+                                <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ $warna }}"></span>
                                 <span class="truncate">{{ $bar['label'] }}</span>
                             </span>
-                            <span class="font-bold text-[#14233B]">{{ $bar['val'] }}%</span>
+                            <span class="font-bold text-[#14233B] whitespace-nowrap">{{ $avgTxt }}<span class="text-[12px] font-medium text-[#6B7A90]"> / 10</span></span>
                         </div>
-                        <div class="relative h-2 w-full bg-[#EEF1F6] rounded-full">
-                            <div data-bar class="h-full rounded-full animate-bar" style="width:{{ $bar['val'] }}%; background:{{ $bar['color'] }}"></div>
-                            <span class="absolute top-1/2 -translate-y-1/2 w-0.5 h-4 rounded bg-[#64748B]" style="left:{{ $bar['batas'] }}%" title="Batas perlu perhatian: {{ $bar['batas'] }}%"></span>
+                        <div class="relative h-1.5 w-full bg-[#EEF1F6] rounded-full" role="img" aria-label="{{ $bar['label'] }}: rata-rata {{ $avgTxt }} dari 10. {{ $ketKuning }}, {{ $ketMerah }}">
+                            <div data-bar class="h-full rounded-full animate-bar" style="width:{{ $val }}%; background:{{ $warna }}"></div>
+                            {{-- Garis batas kuning (Borderline) dan merah (Abnormal) --}}
+                            <span class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2px] h-3 rounded-full" style="left:{{ $bar['border'] * 10 }}%; background:#EBA024; box-shadow:0 0 0 1px #fff" title="{{ $ketKuning }}"></span>
+                            <span class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2px] h-3 rounded-full" style="left:{{ $bar['batas'] * 10 }}%; background:#DC3A46; box-shadow:0 0 0 1px #fff" title="{{ $ketMerah }}"></span>
                         </div>
+                        <p class="text-[12px] text-[#6B7A90] mt-2">
+                            <span class="text-[#B7690B]">{{ $ketKuning }}</span>
+                            <span class="mx-1 text-[#CBD5E1]">·</span>
+                            <span class="text-[#C8303C]">{{ $ketMerah }}</span>
+                        </p>
                     </div>
                     @endforeach
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-[#E3E8F0]">
-                    <p class="text-[13px] text-[#6B7A90] leading-relaxed mb-2.5">
-                        Persentase tinggi berarti perlu perhatian, kecuali <strong class="text-[#14233B]">Prososial</strong> (tinggi berarti baik).
-                        Garis <span class="inline-block w-0.5 h-3 rounded bg-[#64748B] align-middle"></span> pada batang menandai batasnya:
-                    </p>
-                    <div class="flex flex-wrap gap-1.5">
-                        <span class="px-2 py-1 rounded-md bg-[#EEF1F6] text-[12px] text-[#475569]">Emosional <strong>≥ 70%</strong></span>
-                        <span class="px-2 py-1 rounded-md bg-[#EEF1F6] text-[12px] text-[#475569]">Perilaku <strong>≥ 50%</strong></span>
-                        <span class="px-2 py-1 rounded-md bg-[#EEF1F6] text-[12px] text-[#475569]">Hiperaktivitas <strong>≥ 60%</strong></span>
-                        <span class="px-2 py-1 rounded-md bg-[#EEF1F6] text-[12px] text-[#475569]">Teman sebaya <strong>≥ 50%</strong></span>
-                        <span class="px-2 py-1 rounded-md bg-[#E3F5ED] text-[12px] text-[#0F8A5F]">Prososial <strong>≤ 40%</strong></span>
-                    </div>
-                </div>
+                <p class="mt-5 text-[13px] text-[#6B7A90] leading-relaxed">
+                    Batang = <strong class="text-[#14233B]">rata-rata skor</strong> (skala 0–10). Batang
+                    <span class="font-semibold text-[#0F8A5F]">hijau</span> (Normal) berubah
+                    <span class="font-semibold text-[#B7690B]">kuning</span> (Borderline) setelah melewati garis kuning, dan
+                    <span class="font-semibold text-[#C8303C]">merah</span> (Abnormal) setelah melewati garis merah.
+                    <strong class="text-[#14233B]">Prososial dibaca terbalik</strong>: skor tinggi berarti baik, jadi batangnya berubah warna saat turun di bawah garis.
+                </p>
             </section>
         </div>
 
         {{-- ===== Tabel lengkap ===== --}}
         <section id="data-lengkap" class="card overflow-hidden scroll-mt-20">
-            <div class="px-5 md:px-6 py-4 md:py-5 border-b border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3">
+            <div class="px-4 sm:px-5 md:px-6 py-4 md:py-5 border-b border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-start gap-3">
                     <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">table_chart</span></span>
                     <div>
@@ -520,19 +567,19 @@
             </div>
 
             @if($totalSiswa > 0)
-            <div class="px-5 md:px-6 py-3.5 border-b border-[#E3E8F0] bg-[#F7F9FC] flex flex-wrap items-center gap-2.5">
-                <div class="relative flex-1 min-w-[200px]">
+            <div class="px-4 sm:px-5 md:px-6 py-3.5 border-b border-[#E3E8F0] bg-[#F7F9FC] flex flex-wrap items-center gap-2.5">
+                <div class="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px]">
                     <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" style="font-size:18px">search</span>
                     <input id="cari-siswa" type="search" placeholder="Cari nama, NIS, atau kelas..." class="field w-full pl-10 pr-4">
                 </div>
-                <select id="filter-status" class="field py-0 pl-4 pr-9 font-medium cursor-pointer">
+                <select id="filter-status" class="field py-0 pl-4 pr-9 font-medium cursor-pointer flex-1 sm:flex-none min-w-0">
                     <option value="all">Semua status</option>
                     <option value="tindakan">Perlu tindakan</option>
                     <option value="pantau">Perlu dipantau</option>
                     <option value="normal">Normal</option>
                     <option value="ai">Terdeteksi AI</option>
                 </select>
-                <button type="button" id="toggle-detail" class="field inline-flex items-center gap-1.5 px-4 font-medium hover:bg-[#E8F0FB] hover:text-[#1D5FBF] transition-colors">
+                <button type="button" id="toggle-detail" class="field inline-flex items-center justify-center gap-1.5 px-4 font-medium hover:bg-[#E8F0FB] hover:text-[#1D5FBF] transition-colors flex-1 sm:flex-none">
                     <span class="material-symbols-outlined" style="font-size:18px">view_column</span>
                     <span id="toggle-detail-label">Tampilkan skor detail</span>
                 </button>
@@ -636,7 +683,7 @@
             </div>
 
             @if($totalSiswa > 0)
-            <div class="px-5 md:px-6 py-4 border-t border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3">
+            <div class="px-4 sm:px-5 md:px-6 py-4 border-t border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3">
                 <p id="pagination-info" class="text-[13px] text-[#6B7A90]">
                     Menampilkan <span class="font-bold text-[#14233B]">1–{{ min(10, $totalSiswa) }}</span>
                     dari <span class="font-bold text-[#14233B]">{{ $totalSiswa }}</span> data

@@ -22,12 +22,13 @@
             --ink-2: #475569;
             --ink-3: #6B7A90;
             --line: #E3E8F0;
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;
             --ok-bg: #E3F5ED;
             --warn: #B7690B;
             --warn-bg: #FDF1DC;
-            --act: #6D3FD0;
-            --act-bg: #EEE8FB;
+            --act: #C8303C;
+            --act-bg: #FDECEE;
             --ai: #0A78B5;
             --ai-bg: #E2F2FA;
         }
@@ -394,6 +395,36 @@
             .score-meta { text-align: left; }
         }
 
+        /* ===== Perapian tampilan mobile ===== */
+        @media (max-width: 639px) {
+            .card,
+            .auto-box { border-radius: 12px; }
+
+            .report-hero { padding: 20px 16px; border-radius: 16px; }
+            .report-hero::before { width: 240px; height: 240px; right: -90px; top: -150px; }
+            .report-hero::after,
+            .report-hero .hero-orbit { display: none; }
+            .report-avatar { width: 52px; height: 52px; border-radius: 14px; font-size: 17px; }
+            .report-name { font-size: 22px; }
+            .report-pill { min-height: 28px; padding: 5px 9px; font-size: 11px; }
+            .report-score { padding-top: 14px; border-top: 1px solid rgba(255,255,255,.18); }
+            .score-ring { width: 92px; height: 92px; }
+            .score-ring .score-number { font-size: 26px; }
+
+            /* 16px mencegah iPhone zoom otomatis saat mengetik */
+            .input,
+            .textarea { font-size: 16px; }
+            .textarea { min-height: 150px; }
+
+            .form-actions { flex-wrap: nowrap; }
+            .form-actions > * { flex: 1 1 0; }
+
+            .hist-actions { width: 100%; flex-direction: row; }
+            .hist-actions > * { flex: 1 1 0; }
+
+            .back-wrap > a { width: 100%; }
+        }
+
         @media print {
             .report-hero {
                 color: #14233B;
@@ -509,7 +540,7 @@
         @endif
     </header>
 
-    <div class="flex-1 p-4 md:p-8 space-y-6 max-w-6xl w-full mx-auto">
+    <div class="flex-1 p-4 md:p-8 space-y-5 md:space-y-6 max-w-6xl w-full mx-auto">
 
         @if(session('info'))
             <div class="status-box status-info no-print" role="status">
@@ -541,18 +572,27 @@
             $nis = optional($s->user)->nis ?? $s->nis ?? null;
             $noTelp = optional($s->user)->no_telp ?? null;
 
+            // Warna cincin (terang, untuk latar biru tua)
             $ringColor = match($s->hasil_label ?? '') {
                 'Normal' => '#34D399',
                 'Borderline' => '#FBBF24',
-                'Abnormal' => '#C4B5FD',
+                'Abnormal' => '#FCA5A5',
                 default => '#CBD5E1',
+            };
+
+            // Warna teks badge (lebih gelap, agar terbaca di latar putih)
+            $badgeColor = match($s->hasil_label ?? '') {
+                'Normal' => '#0F8A5F',
+                'Borderline' => '#B7690B',
+                'Abnormal' => '#C8303C',
+                default => '#475569',
             };
         @endphp
 
         <section class="report-hero">
             <span class="hero-orbit"></span>
 
-            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-7">
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5 md:gap-7">
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-4">
                         <div class="report-avatar">
@@ -562,39 +602,39 @@
                         <div class="min-w-0">
                             <p class="text-xs text-white/70 mb-1">Laporan Konseling Siswa</p>
                             <h3 class="report-name truncate">{{ $s->nama }}</h3>
-
-                            <div class="flex flex-wrap gap-2 mt-4">
-                                <span class="report-pill">
-                                    <span class="material-symbols-outlined">school</span>
-                                    Kelas {{ $s->kelas ?? '-' }}
-                                </span>
-
-                                @if($nis)
-                                    <span class="report-pill">
-                                        <span class="material-symbols-outlined">badge</span>
-                                        NIS {{ $nis }}
-                                    </span>
-                                @endif
-
-                                @if($tglSkrining)
-                                    <span class="report-pill">
-                                        <span class="material-symbols-outlined">calendar_month</span>
-                                        {{ $tglSkrining->translatedFormat('j F Y') }}
-                                    </span>
-                                    <span class="report-pill">
-                                        <span class="material-symbols-outlined">schedule</span>
-                                        {{ $tglSkrining->format('H.i') }} WIB · {{ $tglSkrining->diffForHumans() }}
-                                    </span>
-                                @endif
-
-                                @if($noTelp)
-                                    <span class="report-pill">
-                                        <span class="material-symbols-outlined">phone</span>
-                                        {{ $noTelp }}
-                                    </span>
-                                @endif
-                            </div>
                         </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <span class="report-pill">
+                            <span class="material-symbols-outlined">school</span>
+                            Kelas {{ $s->kelas ?? '-' }}
+                        </span>
+
+                        @if($nis)
+                            <span class="report-pill">
+                                <span class="material-symbols-outlined">badge</span>
+                                NIS {{ $nis }}
+                            </span>
+                        @endif
+
+                        @if($tglSkrining)
+                            <span class="report-pill">
+                                <span class="material-symbols-outlined">calendar_month</span>
+                                {{ $tglSkrining->translatedFormat('j F Y') }}
+                            </span>
+                            <span class="report-pill">
+                                <span class="material-symbols-outlined">schedule</span>
+                                {{ $tglSkrining->format('H.i') }} WIB · {{ $tglSkrining->diffForHumans() }}
+                            </span>
+                        @endif
+
+                        @if($noTelp)
+                            <span class="report-pill">
+                                <span class="material-symbols-outlined">phone</span>
+                                {{ $noTelp }}
+                            </span>
+                        @endif
                     </div>
                 </div>
 
@@ -620,7 +660,7 @@
 
                     <div class="score-meta">
                         <p class="score-label">Total skor kesulitan</p>
-                        <span class="score-badge" style="color:{{ $ringColor }}">
+                        <span class="score-badge" style="color:{{ $badgeColor }}">
                             SDQ: {{ $s->hasil_label ?? '-' }}
                         </span>
                     </div>
@@ -628,10 +668,10 @@
             </div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,.85fr)] gap-6 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,.85fr)] gap-5 md:gap-6 items-start">
 
             {{-- Form laporan --}}
-            <section class="card p-5 md:p-6">
+            <section class="card p-4 sm:p-5 md:p-6">
                 <div class="flex items-start gap-3 mb-6">
                     <span class="ico">
                         <span class="material-symbols-outlined" style="font-size:20px">description</span>
@@ -705,7 +745,7 @@
                         <p class="field-help">Rekomendasi ini menjadi isi resmi laporan dan akan digunakan saat laporan diunduh sebagai PDF.</p>
                     </div>
 
-                    <div class="pt-2 flex flex-wrap items-center justify-end gap-2 no-print">
+                    <div class="form-actions pt-2 flex flex-wrap items-center justify-end gap-2 no-print">
                         <a href="{{ $modeEdit ? '/riwayat/'.$s->id.'/laporan' : '/riwayat/'.$s->id }}" class="btn-ghost">
                             <span class="material-symbols-outlined" style="font-size:18px">close</span>
                             Batal
@@ -719,7 +759,7 @@
             </section>
 
             {{-- Referensi sistem --}}
-            <aside class="auto-box p-5 md:p-6">
+            <aside class="auto-box p-4 sm:p-5 md:p-6">
                 <div class="flex items-start gap-3">
                     <span class="ico" style="background:var(--ai-bg);color:var(--ai)">
                         <span class="material-symbols-outlined" style="font-size:20px">psychology</span>
@@ -744,7 +784,7 @@
         </div>
 
         {{-- Riwayat laporan siswa --}}
-        <section id="riwayat-laporan" class="card p-5 md:p-6">
+        <section id="riwayat-laporan" class="card p-4 sm:p-5 md:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div class="flex items-start gap-3">
                     <span class="ico">
@@ -802,7 +842,7 @@
                                     </p>
                                 </div>
 
-                                <div class="flex flex-wrap md:flex-col gap-2 md:min-w-[130px] md:items-stretch no-print">
+                                <div class="hist-actions flex flex-wrap md:flex-col gap-2 md:min-w-[130px] md:items-stretch no-print">
                                     @if($hasilItem)
                                         <a href="/riwayat/{{ $hasilItem->id }}/laporan/{{ $item->id }}/edit" class="btn-ghost !px-3 !py-2 text-xs">
                                             <span class="material-symbols-outlined" style="font-size:16px">edit</span>
@@ -821,7 +861,7 @@
             @endif
         </section>
 
-        <div class="flex justify-start no-print">
+        <div class="back-wrap flex justify-start no-print">
             <a href="/riwayat/{{ $s->id }}" class="btn-ghost">
                 <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
                 Kembali ke Detail Skrining

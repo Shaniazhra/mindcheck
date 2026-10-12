@@ -7,9 +7,11 @@
     <link rel="icon" type="image/png" href="{{ asset('logo-smpn216.png') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet">
     @vite('resources/css/tema.css')
+
+    {{-- CSS khusus halaman Kelas. Font, ukuran font, radius, dan CSS sidebar ikut tema.css --}}
     <style>
         :root {
             --navy: #0F2747;
@@ -20,18 +22,18 @@
             --ink-2: #475569;
             --ink-3: #6B7A90;
             --line: #E3E8F0;
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;
             --ok-bg: #E3F5ED;
             --warn: #B7690B;
             --warn-bg: #FDF1DC;
-            --act: #6D3FD0;
-            --act-bg: #EEE8FB;
+            --act: #C8303C;
+            --act-bg: #FDECEE;
             --ai: #0A78B5;
             --ai-bg: #E2F2FA;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             color: var(--ink);
             background:
                 radial-gradient(900px 400px at 85% -80px, #DCE8FA 0%, transparent 70%),
@@ -40,188 +42,15 @@
         }
 
         .material-symbols-outlined {
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
 
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 99px;
-        }
+        :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
-        :focus-visible {
-            outline: 2px solid var(--brand);
-            outline-offset: 2px;
-        }
-
-        /* SIDEBAR */
-        #sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15,39,71,.5);
-            z-index: 40;
-        }
-
-        #sidebar-overlay.open {
-            display: block;
-        }
-
-        #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 272px;
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
-            padding: 22px 14px 16px;
-            background: linear-gradient(180deg, #0F2747 0%, #0B1F3A 100%);
-            color: #fff;
-            transform: translateX(-100%);
-            transition: transform .3s cubic-bezier(.4,0,.2,1);
-        }
-
-        #sidebar.open {
-            transform: translateX(0);
-        }
-
-        #sidebar::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(260px 220px at 0% 0%, rgba(91,157,245,.28), transparent 70%),
-                radial-gradient(240px 240px at 100% 100%, rgba(91,157,245,.16), transparent 70%);
-        }
-
-        #sidebar > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .nav-label {
-            padding: 0 12px;
-            margin: 22px 0 8px;
-            font-size: .72rem;
-            font-weight: 600;
-            color: #7F97B8;
-        }
-
-        .nav-link {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 11px 12px;
-            margin-bottom: 4px;
-            border-radius: 10px;
-            font-size: .85rem;
-            font-weight: 500;
-            color: #B7C7DD;
-            transition: .15s;
-        }
-
-        .nav-link:hover {
-            background: rgba(255,255,255,.07);
-            color: #fff;
-        }
-
-        .nav-link.active {
-            background: linear-gradient(
-                90deg,
-                rgba(91,157,245,.32),
-                rgba(91,157,245,.08)
-            );
-            box-shadow: inset 0 0 0 1px rgba(143,187,250,.25);
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: -14px;
-            top: 9px;
-            bottom: 9px;
-            width: 4px;
-            border-radius: 0 4px 4px 0;
-            background: #5B9DF5;
-        }
-
-        .nav-link.active .material-symbols-outlined {
-            color: #8FBBFA;
-            font-variation-settings:
-                'FILL' 1,
-                'wght' 500,
-                'GRAD' 0,
-                'opsz' 24;
-        }
-
-        .side-user {
-            margin-top: auto;
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(255,255,255,.07);
-            border: 1px solid rgba(255,255,255,.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .side-user .logout {
-            margin-left: auto;
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9FB3CF;
-            transition: .15s;
-        }
-
-        .side-user .logout:hover {
-            background: rgba(229,72,77,.18);
-            color: #FF8A8E;
-        }
-
-        @media (min-width: 1024px) {
-            #sidebar {
-                position: sticky;
-                transform: translateX(0) !important;
-                flex-shrink: 0;
-            }
-
-            #sidebar-overlay {
-                display: none !important;
-            }
-
-            #hamburger-btn {
-                display: none !important;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            #sidebar {
-                transition: none !important;
-            }
-        }
-
-        /* CONTENT */
-        .page-content {
-            background: transparent;
-        }
+        .page-content { background: transparent; }
 
         .table-card {
             background: #fff;
@@ -231,21 +60,54 @@
             box-shadow: 0 2px 8px rgba(15,39,71,.025);
         }
 
-        .btn-detail {
+        .h-title { color: var(--ink); }
+        .h-sub   { color: var(--ink-3); margin-top: 2px; }
+
+        /* Badge status (ukuran font dari tema.css) */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .b-ok   { background: var(--ok-bg);   color: var(--ok); }
+        .b-warn { background: var(--warn-bg); color: var(--warn); }
+        .b-act  { background: var(--act-bg);  color: var(--act); }
+        .b-none { background: #E8ECF2;        color: var(--ink-2); }
+
+        /* Tombol Detail (ukuran font dan radius dari tema.css) */
+        .btn-line {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: .75rem;
-            font-weight: 600;
-            color: #2563EB;
             padding: 6px 12px;
-            border-radius: 9px;
-            border: 1px solid #E2E8F0;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-weight: 600;
+            color: var(--brand);
+            transition: .15s;
+            white-space: nowrap;
+        }
+        .btn-line:hover { background: var(--brand-soft); border-color: #B9D0F2; }
+
+        /* Tombol lulus (hijau, ukuran dan sudut ikut tema) */
+        .btn-lulus {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: var(--r-btn);
+            background: #16A34A;
+            color: #fff;
+            font-size: 13.5px;
+            font-weight: 600;
             transition: .15s;
         }
+        .btn-lulus:hover { background: #15803D; }
 
-        .btn-detail:hover {
-            background: #EFF6FF;
+        @media (max-width: 639px) {
+            .table-card { border-radius: 12px; }
         }
     </style>
 </head>
@@ -257,7 +119,7 @@
 {{-- MAIN --}}
 <main class="flex-1 min-w-0 flex flex-col">
 
-    <div class="page-content flex-1 overflow-y-auto scrollbar-thin p-4 md:p-8 space-y-6">
+    <div class="page-content flex-1 overflow-y-auto scrollbar-thin p-4 md:p-8 space-y-5 md:space-y-6">
 
         {{-- TOMBOL LULUS --}}
         @if(preg_match('/^9-\d+$/', trim($kode)) && $siswaList->count() > 0)
@@ -268,8 +130,7 @@
 
                 @csrf
 
-                <button type="submit"
-                        class="inline-flex items-center px-4 py-2.5 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition">
+                <button type="submit" class="btn-lulus w-full sm:w-auto">
 
                     <span class="material-symbols-outlined align-middle mr-1.5" style="font-size:18px">
                         school
@@ -286,14 +147,14 @@
         {{-- TABEL --}}
         <section class="table-card">
 
-            <div class="px-5 py-4 border-b border-[#E3E8F0] flex items-center justify-between">
+            <div class="px-4 sm:px-5 py-4 border-b border-[#E3E8F0] flex items-center justify-between">
 
                 <div>
-                    <h3 class="text-sm font-bold text-[#14233B]">
+                    <h3 class="h-title">
                         Data Siswa
                     </h3>
 
-                    <p class="text-xs text-[#6B7A90] mt-0.5">
+                    <p class="h-sub">
                         Daftar siswa dan hasil skrining terakhir
                     </p>
                 </div>
@@ -302,32 +163,32 @@
 
             <div class="overflow-x-auto scrollbar-thin">
 
-                <table class="w-full text-sm">
+                <table class="tbl w-full min-w-[640px]">
 
                     <thead>
-                        <tr class="bg-[#EFF6FF] text-xs text-[#1E40AF] uppercase tracking-wide">
+                        <tr class="bg-[#EFF6FF] text-[#1E40AF] uppercase tracking-wide whitespace-nowrap">
 
-                            <th class="px-5 py-3 text-left font-semibold">
+                            <th class="px-4 sm:px-5 py-3 text-left font-semibold">
                                 Nama
                             </th>
 
-                            <th class="px-5 py-3 text-left font-semibold">
+                            <th class="px-4 sm:px-5 py-3 text-left font-semibold">
                                 NIS
                             </th>
 
-                            <th class="px-5 py-3 text-left font-semibold">
+                            <th class="px-4 sm:px-5 py-3 text-left font-semibold">
                                 Hasil Terakhir
                             </th>
 
-                            <th class="px-5 py-3 text-left font-semibold">
+                            <th class="px-4 sm:px-5 py-3 text-left font-semibold">
                                 Total Skor
                             </th>
 
-                            <th class="px-5 py-3 text-left font-semibold">
+                            <th class="px-4 sm:px-5 py-3 text-left font-semibold">
                                 Tanggal Isi
                             </th>
 
-                            <th class="px-5 py-3 text-left font-semibold">
+                            <th class="px-4 sm:px-5 py-3 text-left font-semibold">
                                 Aksi
                             </th>
 
@@ -342,34 +203,34 @@
                                 $h = $siswa->hasil_terakhir;
 
                                 $badge = match($h->hasil_label ?? null) {
-                                    'Normal'     => 'bg-[#D1FAE5] text-[#059669]',
-                                    'Borderline' => 'bg-[#FEF3C7] text-[#D97706]',
-                                    'Abnormal'   => 'bg-[#EDE9FE] text-[#7C3AED]',
-                                    default      => 'bg-[#E2E8F0] text-[#475569]',
+                                    'Normal'     => 'b-ok',
+                                    'Borderline' => 'b-warn',
+                                    'Abnormal'   => 'b-act',
+                                    default      => 'b-none',
                                 };
                             @endphp
 
                             <tr class="hover:bg-[#F8FAFC] transition-colors">
 
-                                <td class="px-5 py-3.5 font-semibold text-[#1E293B]">
+                                <td class="px-4 sm:px-5 py-3.5 font-semibold text-[#1E293B] whitespace-nowrap">
                                     {{ $siswa->name }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-[#64748B]">
+                                <td class="px-4 sm:px-5 py-3.5 text-[#64748B] whitespace-nowrap">
                                     {{ $siswa->nis ?? '-' }}
                                 </td>
 
-                                <td class="px-5 py-3.5">
+                                <td class="px-4 sm:px-5 py-3.5">
 
                                     @if($h)
 
-                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ $badge }}">
+                                        <span class="badge {{ $badge }}">
                                             {{ $h->hasil_label }}
                                         </span>
 
                                     @else
 
-                                        <span class="text-xs text-[#94A3B8] italic">
+                                        <span class="text-[12px] text-[#94A3B8] italic whitespace-nowrap">
                                             Belum mengisi
                                         </span>
 
@@ -377,24 +238,24 @@
 
                                 </td>
 
-                                <td class="px-5 py-3.5 text-[#64748B]">
+                                <td class="px-4 sm:px-5 py-3.5 text-[#64748B] whitespace-nowrap">
                                     {{ $h ? $h->total_kesulitan . '/40' : '-' }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-[#64748B] text-xs">
+                                <td class="px-4 sm:px-5 py-3.5 text-[#64748B] whitespace-nowrap">
                                     {{ $h ? $h->created_at->format('d/m/Y') : '-' }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-left">
+                                <td class="px-4 sm:px-5 py-3.5 text-left">
 
                                     @if($h)
 
                                         <a href="/riwayat/{{ $h->id }}"
-                                           class="btn-detail">
+                                           class="btn-line">
 
                                             Detail
 
-                                            <span class="material-symbols-outlined" style="font-size:13px">
+                                            <span class="material-symbols-outlined" style="font-size:15px">
                                                 chevron_right
                                             </span>
 
@@ -402,7 +263,7 @@
 
                                     @else
 
-                                        <span class="text-xs text-[#CBD5E1]">
+                                        <span class="text-[#CBD5E1]">
                                             -
                                         </span>
 
@@ -417,7 +278,7 @@
                             <tr>
 
                                 <td colspan="6"
-                                    class="px-5 py-16 text-center text-[#64748B] text-sm">
+                                    class="px-5 py-16 text-center text-[#64748B]">
 
                                     Tidak ada siswa di kelas ini
 

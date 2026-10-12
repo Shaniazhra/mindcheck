@@ -32,7 +32,6 @@
     <div class="panel-foot">
         <strong>Tautan tidak berfungsi?</strong>
         Tautan hanya berlaku 60 menit. Kamu bisa meminta tautan baru kapan saja.
-        <div style="margin-top:14px">Dinas Pendidikan Provinsi DKI Jakarta</div>
     </div>
 </aside>
 

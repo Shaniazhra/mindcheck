@@ -85,6 +85,13 @@ class SdqController extends Controller
      * SUBMIT KUESIONER SDQ
      * =========================================================
      *
+     * Pola Post/Redirect/Get:
+     * setelah POST selesai, siswa DIARAHKAN (redirect) ke
+     * GET /sdq/hasil. Halaman hasil tidak lagi dirender langsung
+     * dari POST, jadi refresh / tombol back / pemulihan tab tidak
+     * lagi memunculkan error "GET method is not supported for
+     * route sdq/submit", dan tidak ada risiko kirim ulang form.
+     *
      * Pengaman submit ganda:
      *
      * 1. LOCK per siswa. Kalau tombol diklik dua kali, atau halaman
@@ -117,10 +124,13 @@ class SdqController extends Controller
                 $terakhir &&
                 now()->lt($terakhir->created_at->copy()->addWeek())
             ) {
-                return $this->showResult($terakhir);
+                // Sudah mengisi minggu ini: tampilkan hasil yang ada.
+                return redirect('/sdq/hasil');
             }
 
-            return $this->prosesSubmit($request, $user);
+            $this->prosesSubmit($request, $user);
+
+            return redirect('/sdq/hasil');
         } finally {
             $lock->release();
         }
@@ -131,8 +141,11 @@ class SdqController extends Controller
      * =========================================================
      * PROSES HITUNG + SIMPAN SDQ
      * =========================================================
+     *
+     * Hanya menghitung dan menyimpan. Halaman hasil ditampilkan
+     * oleh hasil() lewat redirect dari submit().
      */
-    private function prosesSubmit(Request $request, $user)
+    private function prosesSubmit(Request $request, $user): void
     {
         /*
          * Ambil 25 jawaban
@@ -382,12 +395,6 @@ class SdqController extends Controller
         $hasil->tahun_ajaran = TahunAjaran::sekarang();
         $hasil->fill($data);
         $hasil->save();
-
-
-        /*
-         * Setelah submit, langsung tampilkan hasil.
-         */
-        return $this->showResult($hasil);
     }
 
 
@@ -522,7 +529,10 @@ class SdqController extends Controller
      * HALAMAN HASIL SDQ
      * =========================================================
      *
-     * INI YANG MEMBUAT AUTO-RECOUNT.
+     * Dibuka lewat GET /sdq/hasil (tujuan redirect dari submit()).
+     * Karena ini route GET biasa, aman di-refresh kapan saja.
+     *
+     * INI JUGA YANG MEMBUAT AUTO-RECOUNT.
      *
      * Setiap kali halaman hasil dibuka / di-refresh:
      *

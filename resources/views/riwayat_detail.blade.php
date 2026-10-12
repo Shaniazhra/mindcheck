@@ -14,9 +14,10 @@
         :root {
             --navy: #0F2747; --brand: #1D5FBF; --brand-soft: #E8F0FB; --bg: #F3F5F9;
             --ink: #14233B; --ink-2: #475569; --ink-3: #6B7A90; --line: #E3E8F0;
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;   --ok-bg: #E3F5ED;
             --warn: #B7690B; --warn-bg: #FDF1DC;
-            --act: #6D3FD0;  --act-bg: #EEE8FB;
+            --act: #C8303C;  --act-bg: #FDECEE;
             --ai: #0A78B5;   --ai-bg: #E2F2FA;
         }
         body { color: var(--ink);
@@ -75,10 +76,26 @@
         .telp-save:hover { background: var(--brand-soft); }
         .telp-cancel { height: 38px; padding: 0 12px; border-radius: var(--r-sm); background: transparent; color: #DCE8FA; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,.3); cursor: pointer; transition: background .15s; }
         .telp-cancel:hover { background: rgba(255,255,255,.14); }
-        .row-info { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border-radius: 12px; background: #F7F9FC; border: 1px solid var(--line); }
+
+        /* Skor SDQ per subskala (kartu polos) */
         .sub { border: 1px solid var(--line); border-radius: 12px; padding: 14px; transition: border-color .15s; }
         .sub:hover { border-color: #B9D0F2; }
-        .prob { border-radius: 12px; padding: 12px; text-align: center; }
+        .sub-track { position: relative; height: 8px; border-radius: 999px; background: #EEF1F6; }
+        .sub-fill { height: 100%; border-radius: 999px; }
+        .sub-tick { position: absolute; top: 50%; width: 2px; height: 14px; border-radius: 99px; transform: translate(-50%, -50%); box-shadow: 0 0 0 1px #fff; }
+
+        /* Analisis AI */
+        .ai-tile { padding: 14px 16px; border-radius: 12px; background: #F7F9FC; border: 1px solid var(--line); }
+        .ai-tile .lbl { font-size: 12px; font-weight: 600; color: var(--ink-3); margin-bottom: 8px; }
+        .ai-tile .hint { display: block; margin-top: 8px; font-size: 11.5px; line-height: 1.45; color: #94A3B8; }
+        .prow { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+        .prow.top { border-color: var(--bd); background: var(--cbg); }
+        .ptrack { height: 6px; border-radius: 999px; background: #EEF1F6; overflow: hidden; margin-top: 10px; }
+        .prow.top .ptrack { background: rgba(255,255,255,.75); }
+        .ptrack > i { display: block; height: 100%; border-radius: 999px; background: var(--bar); }
+        .ptag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: #fff; border: 1px solid var(--bd); color: var(--c); }
+        .pval { font-size: 14px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
         /* Perkembangan siswa */
         .tchip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 6px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
         .tchip .material-symbols-outlined { font-size: 15px; }
@@ -110,12 +127,32 @@
         .tl-item:last-child { margin-bottom: 0; }
         .tl-item::before { content: ''; position: absolute; left: -26px; top: 22px; width: 16px; height: 16px; border-radius: 50%; background: var(--dot, #94A3B8); border: 3px solid #fff; box-shadow: 0 0 0 1.5px var(--dot, #94A3B8); }
         .tl-card { padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; transition: border-color .15s, box-shadow .15s; }
-        .tl-item.current .tl-card { border-color: #9DBDEB; box-shadow: 0 0 0 3px rgba(29,95,191,.08), 0 8px 24px -16px rgba(15,39,71,.18); }
+        .tl-item.current .tl-card { border-color: #9DBDEB; background: #F8FBFF; box-shadow: 0 0 0 3px rgba(29,95,191,.08), 0 8px 24px -16px rgba(15,39,71,.18); }
+        .tl-item.current::before { box-shadow: 0 0 0 1.5px var(--dot, #94A3B8), 0 0 0 5px rgba(29,95,191,.14); }
+        .tl-card > .btn-line { margin-left: auto; }
         .hist-extra { display: none; }
         .hist-open .hist-extra { display: block; }
         .dotk { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
         @media (prefers-reduced-motion: reduce) { .chart-line { animation: none !important; stroke-dashoffset: 0; } }
         @media (prefers-reduced-motion: reduce) { .gauge-ring { transition: none !important; } }
+
+        /* ===== Perapian tampilan mobile ===== */
+        @media (max-width: 639px) {
+            .hero { padding: 22px 18px; border-radius: 16px; }
+            .hero-ring.r1 { width: 260px; height: 260px; right: -100px; top: -110px; }
+            .hero-ring.r2 { display: none; }
+            .card { border-radius: 12px; }
+            .meta { font-size: .72rem; padding: 5px 10px; }
+            .telp-form { max-width: none; }
+            .telp-input { flex: 1 1 100%; }
+            .sub { padding: 12px; }
+            .remind { padding: 16px; }
+            .tl-card { padding: 12px 14px; gap: 10px; }
+            .tl-card > .btn-line { width: 100%; justify-content: center; margin-left: 0; }
+            .prow { padding: 11px 12px; }
+            .ai-tile { padding: 12px 14px; }
+            .pval { font-size: 13.5px; }
+        }
     </style>
 
     @vite('resources/css/tema.css')
@@ -144,37 +181,44 @@
 
     $sdqBadge = match($s->hasil_label) { 'Normal' => 'b-ok', 'Borderline' => 'b-warn', 'Abnormal' => 'b-act', default => 'b-none' };
     $nbBadge  = match($s->hasil_naive_bayes ?? '') { 'Normal' => 'b-ok', 'Borderline' => 'b-warn', 'High Risk' => 'b-act', default => 'b-none' };
-    $kaBadge  = match($s->keputusan_akhir ?? '') { 'Normal' => 'b-ok', 'Borderline' => 'b-warn', 'High Risk' => 'b-act', default => 'b-none' };
+    $kaBadge  = match($s->keputusan_akhir ?? '') { 'Normal' => 'b-ok', 'Borderline' => 'b-warn', 'High Risk', 'Abnormal' => 'b-act', default => 'b-none' };
 
+    // ms = batas kuning, mt = batas merah (dipakai untuk penanda di batang)
     $subskala = [
         ['label' => 'Emosional', 'val' => $s->skor_emotional, 'max' => 10, 'icon' => 'mood_bad',
-         'tinggi' => $s->skor_emotional >= 7, 'sedang' => $s->skor_emotional >= 5,
+         'tinggi' => $s->skor_emotional >= 7, 'sedang' => $s->skor_emotional >= 5, 'ms' => 5, 'mt' => 7, 'rev' => false,
          'arti' => 'Indikasi kecemasan atau depresi — sering merasa sedih, takut, atau cemas berlebihan.'],
         ['label' => 'Perilaku', 'val' => $s->skor_conduct, 'max' => 10, 'icon' => 'warning',
-         'tinggi' => $s->skor_conduct >= 5, 'sedang' => $s->skor_conduct >= 3,
+         'tinggi' => $s->skor_conduct >= 5, 'sedang' => $s->skor_conduct >= 3, 'ms' => 3, 'mt' => 5, 'rev' => false,
          'arti' => 'Indikasi masalah perilaku — mudah marah, berbohong, atau perilaku agresif.'],
         ['label' => 'Hiperaktivitas', 'val' => $s->skor_hyperactivity, 'max' => 10, 'icon' => 'bolt',
-         'tinggi' => $s->skor_hyperactivity >= 7, 'sedang' => $s->skor_hyperactivity >= 5,
+         'tinggi' => $s->skor_hyperactivity >= 7, 'sedang' => $s->skor_hyperactivity >= 5, 'ms' => 5, 'mt' => 7, 'rev' => false,
          'arti' => 'Indikasi sulit fokus, gelisah, atau bertindak impulsif tanpa berpikir.'],
         ['label' => 'Teman Sebaya', 'val' => $s->skor_peer, 'max' => 10, 'icon' => 'group',
-         'tinggi' => $s->skor_peer >= 6, 'sedang' => $s->skor_peer >= 4,
+         'tinggi' => $s->skor_peer >= 6, 'sedang' => $s->skor_peer >= 4, 'ms' => 4, 'mt' => 6, 'rev' => false,
          'arti' => 'Indikasi isolasi sosial — kesulitan berteman, tidak disukai, atau di-bully.'],
         ['label' => 'Prososial', 'val' => $s->skor_prosocial, 'max' => 10, 'icon' => 'favorite',
-         'tinggi' => $s->skor_prosocial <= 3, 'sedang' => $s->skor_prosocial <= 5,
+         'tinggi' => $s->skor_prosocial <= 3, 'sedang' => $s->skor_prosocial <= 5, 'ms' => 5, 'mt' => 3, 'rev' => true,
          'arti' => 'Kurang menunjukkan empati, kepedulian, atau perilaku membantu orang lain.'],
     ];
 
     $probN = (float) ($s->prob_normal ?? 0);
     $probB = (float) ($s->prob_borderline ?? 0);
     $probH = (float) ($s->prob_high_risk ?? 0);
+    $probMaks = max($probN, $probB, $probH);
+    $probList = [
+        ['label' => 'Normal',     'val' => $probN, 'bar' => '#10A674', 'c' => '#0F8A5F', 'cbg' => '#F4FBF8', 'bd' => '#CDEBDD'],
+        ['label' => 'Borderline', 'val' => $probB, 'bar' => '#EBA024', 'c' => '#B7690B', 'cbg' => '#FFFAF0', 'bd' => '#F4DFB6'],
+        ['label' => 'High Risk',  'val' => $probH, 'bar' => '#DC3A46', 'c' => '#C8303C', 'cbg' => '#FFF6F6', 'bd' => '#F3C9CD'],
+    ];
 
     // Langkah rekomendasi: [warna, teks, label opsional]
     $rekom = [];
     if ($s->tindakan) {
         $rekom[] = ['#1D5FBF', $s->tindakan, 'Rekomendasi sistem:'];
         if ($s->keputusan_akhir === 'High Risk') {
-            $rekom[] = ['#6D3FD0', 'Segera lakukan konseling bimbingan konseling (BK) individual intensif.', null];
-            $rekom[] = ['#6D3FD0', 'Koordinasikan dengan orang tua/wali kelas dan pertimbangkan rujukan ke ahli profesional.', null];
+            $rekom[] = ['#C8303C', 'Segera lakukan konseling bimbingan konseling (BK) individual intensif.', null];
+            $rekom[] = ['#C8303C', 'Koordinasikan dengan orang tua/wali kelas dan pertimbangkan rujukan ke ahli profesional.', null];
         } elseif ($s->keputusan_akhir === 'Borderline') {
             $rekom[] = ['#B7690B', 'Jadwalkan pemantauan berkala dan konseling preventif ringan.', null];
             $rekom[] = ['#B7690B', 'Koordinasikan dengan guru mata bimbingan konseling untuk perkembangan di kelas.', null];
@@ -186,9 +230,9 @@
         $rekom[] = ['#0A78B5', 'Libatkan orang tua / wali untuk konfirmasi perilaku siswa di rumah.', null];
         $rekom[] = ['#0A78B5', 'Lakukan skrining ulang dalam 2–4 minggu ke depan.', null];
     } elseif ($s->hasil_label === 'Abnormal') {
-        $rekom[] = ['#6D3FD0', 'Segera lakukan konseling individual intensif.', null];
-        $rekom[] = ['#6D3FD0', 'Koordinasi dengan orang tua dan bila perlu rujuk ke psikolog/psikiater.', null];
-        $rekom[] = ['#6D3FD0', 'Pantau perkembangan siswa secara berkala setiap minggu.', null];
+        $rekom[] = ['#C8303C', 'Segera lakukan konseling individual intensif.', null];
+        $rekom[] = ['#C8303C', 'Koordinasi dengan orang tua dan bila perlu rujuk ke psikolog/psikiater.', null];
+        $rekom[] = ['#C8303C', 'Pantau perkembangan siswa secara berkala setiap minggu.', null];
     } elseif ($s->hasil_label === 'Borderline') {
         $rekom[] = ['#B7690B', 'Jadwalkan sesi konseling preventif dalam waktu dekat.', null];
         $rekom[] = ['#B7690B', 'Monitor perkembangan siswa dan lakukan skrining ulang dalam 1 bulan.', null];
@@ -212,9 +256,9 @@
             'icon' => 'priority_high',
             'judul' => 'Siswa memerlukan perhatian segera',
             'isi' => 'Hasil menunjukkan tingkat kesulitan yang tinggi. Disarankan konseling individual dan koordinasi dengan orang tua/wali.',
-            'box' => 'bg-[#EEE8FB] border-[#D8CCF5]',
-            'ink' => 'text-[#4C2A9A]',
-            'ico' => 'text-[#6D3FD0]',
+            'box' => 'bg-[#FDECEE] border-[#F3C9CD]',
+            'ink' => 'text-[#9B1C28]',
+            'ico' => 'text-[#C8303C]',
         ];
     } elseif ($keputusan === 'Borderline') {
         $ringkas = [
@@ -247,7 +291,7 @@
     } elseif ($s->hasil_label === 'Borderline') {
         $gaugeColor = '#FBBF24';
     } elseif ($s->hasil_label === 'Abnormal') {
-        $gaugeColor = '#C4B5FD';
+        $gaugeColor = '#FCA5A5';
     }
 
     // ---- Perkembangan siswa (riwayat pengisian) ----
@@ -301,7 +345,7 @@
     // Grafik total skor
     $seri = $rw->take(8)->reverse()->values(); $nSeri = $seri->count();
     $cw = 640; $chh = 230; $pl = 42; $pr = 26; $pt = 26; $pb = 46; $pw = $cw - $pl - $pr; $ph = $chh - $pt - $pb;
-    $warnaTitik = ['Normal' => '#16A47A', 'Borderline' => '#E39A25', 'Abnormal' => '#7C4DDB'];
+    $warnaTitik = ['Normal' => '#16A47A', 'Borderline' => '#E39A25', 'Abnormal' => '#DC3A46'];
     $titik = [];
     foreach ($seri as $i => $r) {
         $x = $nSeri > 1 ? $pl + $i * $pw / ($nSeri - 1) : $pl + $pw / 2;
@@ -360,7 +404,7 @@
         </a>
     </header>
 
-    <div class="flex-1 p-4 md:p-8 space-y-6 max-w-6xl w-full mx-auto">
+    <div class="flex-1 p-4 md:p-8 space-y-5 md:space-y-6 max-w-6xl w-full mx-auto">
 
         {{-- Pesan sukses / gagal setelah ubah nomor HP --}}
         @if(session('success'))
@@ -462,7 +506,7 @@
         </div>
 
         {{-- ============ Tiga hasil utama ============ --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
             <div class="card p-4 md:p-5">
                 <div class="flex items-center gap-2.5 text-[#6B7A90] text-xs font-semibold mb-3">
                     <span class="ico"><span class="material-symbols-outlined" style="font-size:19px">fact_check</span></span>
@@ -498,111 +542,138 @@
             </div>
         </div>
 
-        {{-- ============ Subskala + Analisis AI ============ --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <section class="card p-5 md:p-6 flex flex-col">
-                <div class="flex items-center justify-between gap-3 mb-5">
-                    <div class="flex items-center gap-3">
-                        <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">bar_chart</span></span>
-                        <h4 class="h-title">Skor SDQ per Subskala</h4>
-                    </div>
-                    <span class="text-xs text-[#6B7A90]">Total <strong class="text-[#14233B]">{{ $s->total_kesulitan }}/40</strong></span>
+        {{-- ============ Subskala (lebar penuh) ============ --}}
+        <section class="card p-4 sm:p-5 md:p-6">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div class="flex items-center gap-3">
+                    <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">bar_chart</span></span>
+                    <h4 class="h-title">Skor SDQ per Subskala</h4>
                 </div>
+                <span class="text-xs text-[#6B7A90] whitespace-nowrap">Total <strong class="text-[#14233B]">{{ $s->total_kesulitan }}/40</strong></span>
+            </div>
 
-                <div class="space-y-3 flex-1">
-                    @foreach($subskala as $sk)
-                    @php
-                        $persen  = ($sk['val'] / $sk['max']) * 100;
-                        $fillBg  = $sk['tinggi'] ? 'bg-[#7C4DDB]' : ($sk['sedang'] ? 'bg-[#EBA024]' : 'bg-[#10A674]');
-                        $textCol = $sk['tinggi'] ? 'text-[#6D3FD0]' : ($sk['sedang'] ? 'text-[#B7690B]' : 'text-[#0F8A5F]');
-                        $level   = $sk['tinggi'] ? ['Perlu perhatian', 'b-act'] : ($sk['sedang'] ? ['Perlu dipantau', 'b-warn'] : ['Aman', 'b-ok']);
-                    @endphp
-                    <div class="sub">
-                        <div class="flex items-center justify-between gap-3 mb-2.5">
-                            <div class="flex items-center gap-2.5 min-w-0">
-                                <span class="ico" style="width:32px;height:32px"><span class="material-symbols-outlined" style="font-size:18px">{{ $sk['icon'] }}</span></span>
-                                <p class="text-sm font-semibold text-[#14233B] truncate">{{ $sk['label'] }}</p>
-                            </div>
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                <span class="badge {{ $level[1] }}">{{ $level[0] }}</span>
-                                <span class="text-sm font-bold {{ $textCol }}">{{ $sk['val'] }}/{{ $sk['max'] }}</span>
-                            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                @foreach($subskala as $sk)
+                @php
+                    $persen  = ($sk['val'] / $sk['max']) * 100;
+                    $fillBg  = $sk['tinggi'] ? 'bg-[#DC3A46]' : ($sk['sedang'] ? 'bg-[#EBA024]' : 'bg-[#10A674]');
+                    $textCol = $sk['tinggi'] ? 'text-[#C8303C]' : ($sk['sedang'] ? 'text-[#B7690B]' : 'text-[#0F8A5F]');
+                    $level   = $sk['tinggi'] ? ['Perlu perhatian', 'b-act'] : ($sk['sedang'] ? ['Perlu dipantau', 'b-warn'] : ['Aman', 'b-ok']);
+                    $op      = $sk['rev'] ? '≤' : '≥';
+                @endphp
+                <div class="sub {{ $loop->last ? 'md:col-span-2' : '' }}">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="ico" style="width:32px;height:32px"><span class="material-symbols-outlined" style="font-size:18px">{{ $sk['icon'] }}</span></span>
+                            <p class="text-sm font-semibold text-[#14233B] truncate">{{ $sk['label'] }}</p>
                         </div>
-                        <div class="h-2 bg-[#EEF1F6] rounded-full overflow-hidden">
-                            <div data-bar class="h-full rounded-full animate-bar {{ $fillBg }}" style="width:{{ $persen }}%"></div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <span class="badge {{ $level[1] }}">{{ $level[0] }}</span>
+                            <span class="text-sm font-bold {{ $textCol }}">{{ $sk['val'] }}/{{ $sk['max'] }}</span>
                         </div>
-                        @if($sk['sedang'])
-                            <p class="text-[11.5px] text-[#6B7A90] mt-2 leading-relaxed">{{ $sk['arti'] }}</p>
-                        @endif
                     </div>
-                    @endforeach
+
+                    <div class="sub-track" role="img" aria-label="{{ $sk['label'] }}: {{ $sk['val'] }} dari {{ $sk['max'] }}. Kuning {{ $op }} {{ $sk['ms'] }}, Merah {{ $op }} {{ $sk['mt'] }}">
+                        <div data-bar class="sub-fill animate-bar {{ $fillBg }}" style="width:{{ $persen }}%"></div>
+                        <span class="sub-tick" style="left:{{ $sk['ms'] * 10 }}%;background:#EBA024" title="Kuning {{ $op }} {{ $sk['ms'] }}"></span>
+                        <span class="sub-tick" style="left:{{ $sk['mt'] * 10 }}%;background:#DC3A46" title="Merah {{ $op }} {{ $sk['mt'] }}"></span>
+                    </div>
+
+                    <p class="text-[12px] text-[#6B7A90] mt-2">
+                        <span class="text-[#B7690B]">Kuning {{ $op }} {{ $sk['ms'] }}</span>
+                        <span class="mx-1 text-[#CBD5E1]">·</span>
+                        <span class="text-[#C8303C]">Merah {{ $op }} {{ $sk['mt'] }}</span>
+                    </p>
+
+                    @if($sk['sedang'])
+                        <p class="text-[11.5px] text-[#6B7A90] mt-2 leading-relaxed">{{ $sk['arti'] }}</p>
+                    @endif
                 </div>
+                @endforeach
+            </div>
 
-                <p class="text-[11.5px] text-[#94A3B8] mt-4 pt-4 border-t border-[#E3E8F0] leading-relaxed">
-                    Prososial dibaca terbalik: skor yang rendah yang perlu perhatian.
-                </p>
-            </section>
+            <p class="text-[11.5px] text-[#94A3B8] mt-4 pt-4 border-t border-[#E3E8F0] leading-relaxed">
+                Garis kuning dan merah di batang adalah batas level. Prososial dibaca terbalik: skor yang rendah yang perlu perhatian.
+            </p>
+        </section>
 
-            <section class="card p-5 md:p-6 flex flex-col">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">analytics</span></span>
-                    <h4 class="h-title">Analisis AI (Gaussian Naive Bayes)</h4>
+        {{-- ============ Analisis AI (lebar penuh) ============ --}}
+        <section class="card p-4 sm:p-5 md:p-6">
+            <div class="flex items-start gap-3 mb-5">
+                <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">analytics</span></span>
+                <div>
+                    <h4 class="h-title">Analisis AI</h4>
+                    <p class="h-sub text-xs">Gaussian Naive Bayes</p>
                 </div>
+            </div>
 
-                <div class="space-y-3">
-                    <div class="row-info">
-                        <span class="text-xs md:text-sm text-[#475569]">Prediksi Naive Bayes</span>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+                {{-- Kiri: prediksi dan keputusan akhir --}}
+                <div class="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-3 content-start">
+                    <div class="ai-tile">
+                        <p class="lbl">Prediksi Naive Bayes</p>
                         <span class="badge {{ $nbBadge }}">{{ $s->hasil_naive_bayes ?? '-' }}</span>
+                        <span class="hint">Kelas dengan peluang tertinggi</span>
                     </div>
-                    <div class="row-info">
-                        <span class="text-xs md:text-sm text-[#475569]">Keputusan Akhir (OR)</span>
+                    <div class="ai-tile">
+                        <p class="lbl">Keputusan akhir</p>
                         <span class="badge {{ $kaBadge }}">{{ $keputusan }}</span>
+                        <span class="hint">Berisiko bila SDQ atau AI berisiko</span>
                     </div>
                 </div>
 
-                <div class="mt-6 flex-1">
-                    <h5 class="text-xs font-bold text-[#475569] mb-3">Probabilitas kelas</h5>
-                    <div class="flex h-3 w-full rounded-full overflow-hidden bg-[#EEF1F6] mb-3" role="img"
-                         aria-label="Normal {{ $probN }}%, Borderline {{ $probB }}%, High Risk {{ $probH }}%">
-                        <div data-bar class="bg-[#10A674] animate-bar" style="width:{{ $probN }}%"></div>
-                        <div data-bar class="bg-[#EBA024] animate-bar" style="width:{{ $probB }}%"></div>
-                        <div data-bar class="bg-[#7C4DDB] animate-bar" style="width:{{ $probH }}%"></div>
+                {{-- Kanan: probabilitas tiap kelas --}}
+                <div class="lg:col-span-8 lg:pl-6 lg:border-l border-[#E3E8F0]">
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <h5 class="text-xs font-bold text-[#475569]">Probabilitas tiap kelas</h5>
+                        <span class="text-[11.5px] text-[#94A3B8]">Total 100%</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="prob b-ok"><p class="text-[10.5px] md:text-xs font-bold mb-0.5">Normal</p><p class="text-sm md:text-base font-extrabold">{{ $s->prob_normal ?? 0 }}%</p></div>
-                        <div class="prob b-warn"><p class="text-[10.5px] md:text-xs font-bold mb-0.5">Borderline</p><p class="text-sm md:text-base font-extrabold">{{ $s->prob_borderline ?? 0 }}%</p></div>
-                        <div class="prob b-act"><p class="text-[10.5px] md:text-xs font-bold mb-0.5">High Risk</p><p class="text-sm md:text-base font-extrabold">{{ $s->prob_high_risk ?? 0 }}%</p></div>
+
+                    <div class="space-y-2.5">
+                        @foreach($probList as $p)
+                        @php $top = $probMaks > 0 && $p['val'] == $probMaks; @endphp
+                        <div class="prow {{ $top ? 'top' : '' }}" style="--c:{{ $p['c'] }};--cbg:{{ $p['cbg'] }};--bd:{{ $p['bd'] }};--bar:{{ $p['bar'] }}">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:{{ $p['bar'] }}"></span>
+                                    <span class="text-[13.5px] font-semibold text-[#14233B]">{{ $p['label'] }}</span>
+                                    @if($top)<span class="ptag">Prediksi</span>@endif
+                                </span>
+                                <span class="pval" style="color:{{ $p['c'] }}">{{ number_format($p['val'], 1, ',', '.') }}%</span>
+                            </div>
+                            <div class="ptrack" role="img" aria-label="{{ $p['label'] }} {{ $p['val'] }}%"><i data-bar style="width:{{ $p['val'] }}%"></i></div>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
+            </div>
 
-                <p class="text-[11.5px] text-[#94A3B8] mt-4 pt-4 border-t border-[#E3E8F0] leading-relaxed">
-                    Prediksi AI mengikuti kelas dengan probabilitas tertinggi. Keputusan akhir dinyatakan berisiko bila SDQ atau AI menunjukkan risiko.
-                </p>
-            </section>
-        </div>
+            <p class="text-[11.5px] text-[#94A3B8] mt-5 pt-4 border-t border-[#E3E8F0] leading-relaxed">
+                Prediksi AI mengikuti kelas dengan probabilitas tertinggi. Keputusan akhir dinyatakan berisiko bila SDQ atau AI menunjukkan risiko.
+            </p>
+        </section>
 
         {{-- ============ Pola tersembunyi ============ --}}
         @if($isRisikoAI)
         <section class="card overflow-hidden">
-            <div class="px-5 md:px-6 py-4 border-b border-[#E3E8F0] flex items-center gap-3 bg-[#F7F9FC]">
+            <div class="px-4 sm:px-5 md:px-6 py-4 border-b border-[#E3E8F0] flex items-center gap-3 bg-[#F7F9FC]">
                 <span class="ico" style="background:var(--ai-bg);color:var(--ai)"><span class="material-symbols-outlined" style="font-size:20px">psychology</span></span>
                 <div>
                     <h4 class="h-title">Rincian Pola Tersembunyi</h4>
                     <p class="h-sub">Subskala yang menyebabkan AI mendeteksi risiko</p>
                 </div>
             </div>
-            <div class="p-5 md:p-6 space-y-3">
+            <div class="p-4 sm:p-5 md:p-6 space-y-3">
                 @php $adaSubskalaSignifikan = false; @endphp
                 @foreach($subskala as $sk)
                     @continue(!$sk['sedang'])
                     @php $adaSubskalaSignifikan = true; @endphp
-                    <div class="flex items-start gap-3 p-4 rounded-xl border {{ $sk['tinggi'] ? 'bg-[#EEE8FB] border-[#D8CCF5]' : 'bg-[#FDF1DC] border-[#F4DFB6]' }}">
-                        <span class="material-symbols-outlined flex-shrink-0 mt-0.5 {{ $sk['tinggi'] ? 'text-[#6D3FD0]' : 'text-[#B7690B]' }}" style="font-size:19px;font-variation-settings:'FILL' 1">{{ $sk['icon'] }}</span>
+                    <div class="flex items-start gap-3 p-4 rounded-xl border {{ $sk['tinggi'] ? 'bg-[#FDECEE] border-[#F3C9CD]' : 'bg-[#FDF1DC] border-[#F4DFB6]' }}">
+                        <span class="material-symbols-outlined flex-shrink-0 mt-0.5 {{ $sk['tinggi'] ? 'text-[#C8303C]' : 'text-[#B7690B]' }}" style="font-size:19px;font-variation-settings:'FILL' 1">{{ $sk['icon'] }}</span>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1 gap-2">
-                                <p class="text-xs md:text-sm font-bold {{ $sk['tinggi'] ? 'text-[#4C2A9A]' : 'text-[#8A4F08]' }}">{{ $sk['label'] }} {{ $sk['tinggi'] ? 'sangat tinggi' : 'cukup tinggi' }}</p>
-                                <span class="text-xs md:text-sm font-extrabold flex-shrink-0 {{ $sk['tinggi'] ? 'text-[#6D3FD0]' : 'text-[#B7690B]' }}">{{ $sk['val'] }}/{{ $sk['max'] }}</span>
+                                <p class="text-xs md:text-sm font-bold {{ $sk['tinggi'] ? 'text-[#9B1C28]' : 'text-[#8A4F08]' }}">{{ $sk['label'] }} {{ $sk['tinggi'] ? 'sangat tinggi' : 'cukup tinggi' }}</p>
+                                <span class="text-xs md:text-sm font-extrabold flex-shrink-0 {{ $sk['tinggi'] ? 'text-[#C8303C]' : 'text-[#B7690B]' }}">{{ $sk['val'] }}/{{ $sk['max'] }}</span>
                             </div>
                             <p class="text-xs text-[#475569] leading-relaxed">{{ $sk['arti'] }}</p>
                         </div>
@@ -669,7 +740,7 @@
                 @if($rw->count() >= 2)
                     @if($ringTren)
                     @php $kTren = $ringTren['k']; @endphp
-                    <div class="flex items-start gap-3 mb-4 p-3.5 rounded-xl {{ ['baik' => 'bg-[#E3F5ED]', 'sama' => 'bg-[#F3F5F9]', 'buruk' => 'bg-[#FDF1DC]'][$kTren] }}">
+                    <div class="flex flex-wrap items-start gap-3 mb-4 p-3.5 rounded-xl {{ ['baik' => 'bg-[#E3F5ED]', 'sama' => 'bg-[#F3F5F9]', 'buruk' => 'bg-[#FDF1DC]'][$kTren] }}">
                         <span class="tchip {{ $trenChip[$kTren][0] }}" style="background:#fff"><span class="material-symbols-outlined">{{ $trenChip[$kTren][1] }}</span>{{ $trenChip[$kTren][2] }}</span>
                         <div class="min-w-0 text-[13px] leading-relaxed text-[#475569]">
                             <p class="font-bold text-sm text-[#14233B]">
@@ -711,7 +782,7 @@
                     <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-[#475569]">
                         <span><i class="dotk" style="background:#16A47A"></i>Normal</span>
                         <span><i class="dotk" style="background:#E39A25"></i>Borderline</span>
-                        <span><i class="dotk" style="background:#7C4DDB"></i>Abnormal</span>
+                        <span><i class="dotk" style="background:#DC3A46"></i>Abnormal</span>
                         <span class="text-[#6B7A90]">Titik besar = pengisian yang sedang dibuka</span>
                     </div>
                 @else
@@ -761,7 +832,7 @@
                 <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-[#475569]">
                     <span><i class="dotk" style="background:#0F8A5F"></i>Aman</span>
                     <span><i class="dotk" style="background:#B7690B"></i>Perlu dipantau</span>
-                    <span><i class="dotk" style="background:#6D3FD0"></i>Perlu perhatian</span>
+                    <span><i class="dotk" style="background:#C8303C"></i>Perlu perhatian</span>
                     <span class="text-[#6B7A90]">Prososial dibaca terbalik. Kolom biru = pengisian yang sedang dibuka.</span>
                 </div>
             </div>
@@ -803,11 +874,9 @@
                                 @if($tk)<span class="tchip {{ $trenChip[$tk][0] }}"><span class="material-symbols-outlined">{{ $trenChip[$tk][1] }}</span>{{ $trenChip[$tk][2] }}</span>
                                 @else<span class="tchip t-sama">Pengisian pertama</span>@endif
                             </div>
-                            @if($ini)
-                                <span class="badge" style="background:var(--brand-soft);color:var(--brand)">Sedang dibuka</span>
-                            @else
+                            @unless($ini)
                                 <a href="/riwayat/{{ $r->id }}" class="btn-line">Lihat detail<span class="material-symbols-outlined" style="font-size:14px">chevron_right</span></a>
-                            @endif
+                            @endunless
                         </div>
                     </li>
                 @endforeach
@@ -825,7 +894,7 @@
         @endif
 
         {{-- ============ Rekomendasi ============ --}}
-        <section class="card p-5 md:p-6">
+        <section class="card p-4 sm:p-5 md:p-6">
             <div class="flex items-center gap-3 mb-6">
                 <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">lightbulb</span></span>
                 <h4 class="h-title">Rekomendasi Tindak Lanjut</h4>

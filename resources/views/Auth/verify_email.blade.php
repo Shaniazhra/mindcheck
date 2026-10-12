@@ -9,277 +9,330 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite('resources/css/tema.css')
-    
+
+    {{-- Foto latar panel: gambar pertama dari slider yang diatur Super Admin --}}
+    @php $heroBg = \App\Models\Pengaturan::heroSlides()[0] ?? null; @endphp
+
     <style>
-        /* ============ Warna (sama dengan beranda, login, dan registrasi) ============ */
         :root {
-            --navy: #16324B; --navy-deep: #0E2338; --blue: #4E8FC4; --blue-soft: #DCEBF6;
-            --bg: #F5F9FC; --leaf: #4C7A52; --leaf-soft: #E5EFE6; --ink: #16324B; --ink-soft: #52687D; --line: #D8E6F0;
-            --error-bg: #FBEAEA; --error-ink: #B4453F; --ok-bg: #E7F5EC; --ok-ink: #2F6B45;
+            --navy: #16324B;
+            --navy-deep: #0E2338;
+            --blue: #4E8FC4;
+            --blue-soft: #DCEBF6;
+            --bg: #F5F9FC;
+            --leaf: #4C7A52;
+            --ink: #16324B;
+            --ink-soft: #52687D;
+            --line: #D8E6F0;
+            --error-bg: #FBEAEA;
+            --error-ink: #B4453F;
+            --ok-bg: #E7F5EC;
+            --ok-ink: #2F6B45;
         }
+
         * { box-sizing: border-box; }
-        html, body { margin: 0; min-height: 100%; background: #fff; color: var(--ink); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+        [hidden] { display: none !important; }
+
+        html, body {
+            margin: 0; padding: 0; min-height: 100%;
+            background: var(--bg); color: var(--ink);
+            font-family: 'Inter', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
         a { color: inherit; text-decoration: none; }
-        h1, h2, .serif { font-family: 'Source Serif 4', Georgia, serif; }
+        h1, h2, h3 { font-family: 'Source Serif 4', Georgia, serif; }
         :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 
-        /* ============ Susunan halaman: panel kiri penuh + isi di kanan ============ */
-        .page { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr); position: relative; }
-        .page::before {
+        .page { min-height: 100vh; background: #fff; }
+        .card { position: relative; width: 100%; min-height: 100vh; background: #fff; display: flex; }
+        .card::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; z-index: 5;
             background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 50%, var(--leaf) 100%);
         }
-        @media (min-width: 960px) { .page { grid-template-columns: minmax(380px, 5fr) minmax(0, 7fr); } }
 
-        /* ---------- Panel kiri ---------- */
-        .side {
-            position: relative; isolation: isolate; color: #EAF2F8;
-            padding: 36px 24px 28px;
-            display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
-            background: url('{{ asset("gedung_216.jpeg") }}') center/cover no-repeat;
-        }
-        .side::before {
-            content: ""; position: absolute; inset: 0; z-index: -1;
-            background:
-                radial-gradient(420px 300px at 100% 0%, rgba(78,143,196,.35), transparent 65%),
-                linear-gradient(180deg, rgba(14,35,56,.9) 0%, rgba(22,50,75,.88) 55%, rgba(14,35,56,.96) 100%);
-        }
-        @media (min-width: 960px) { .side { padding: 48px 48px 36px; position: sticky; top: 0; height: 100vh; } }
-
-        .brand { display: flex; align-items: center; gap: 14px; }
+        /* ===== Brand ===== */
+        .brand { display: flex; align-items: center; gap: 12px; }
         .brand-mark {
-            width: 48px; height: 48px; border-radius: 50%; background: #fff; flex-shrink: 0;
-            border: 1.5px solid rgba(255,255,255,.5); padding: 3px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
         }
         .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-        .brand-name { font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; font-weight: 600; color: #fff; line-height: 1.25; }
-        .brand-sub { font-size: 12px; color: #B9CADA; margin-top: 3px; }
+        .brand-text { line-height: 1.25; }
+        .school-name { font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; font-weight: 600; color: #fff; }
+        .school-sub { font-size: 12px; font-weight: 500; color: #C5D5E3; }
 
-        .art { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 0; }
-        .art svg { width: 190px; height: auto; overflow: visible; }
-        .art h2 { margin: 20px 0 0; font-size: 26px; font-weight: 600; color: #fff; letter-spacing: -.2px; }
-        .art p { margin: 10px auto 0; max-width: 330px; font-size: 13.5px; line-height: 1.75; color: #C9DAE7; }
-        @media (min-width: 960px) { .art svg { width: 260px; } .art h2 { font-size: 30px; } }
-        @media (max-width: 959px) { .art p { display: none; } .art h2 { margin-top: 12px; font-size: 22px; } .art svg { width: 130px; } }
-
-        .side-foot { font-size: 12px; line-height: 1.6; color: #A9BFD2; text-align: center; }
-        @media (max-width: 959px) { .side-foot { display: none; } }
-
-        /* Ilustrasi amplop: melayang pelan */
-        .env { animation: floaty 5.5s ease-in-out infinite; transform-origin: center; }
-        .seal { transform-box: fill-box; transform-origin: center; animation: pop .7s .4s cubic-bezier(.34,1.56,.64,1) both; }
-        @keyframes floaty { 50% { transform: translateY(-9px); } }
-        @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        /* ---------- Isi kanan (tanpa kartu) ---------- */
-        .main { display: flex; flex-direction: column; justify-content: center; padding: 36px 24px 40px; background: linear-gradient(180deg, var(--blue-soft) 0%, #fff 260px); }
-        @media (min-width: 960px) { .main { padding: 56px 72px; } }
-        .content { width: 100%; max-width: 520px; }
-        .rise { animation: rise .55s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
-        @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
-
-        /* Penunjuk langkah */
-        .stepper { list-style: none; margin: 0 0 34px; padding: 0; display: flex; }
-        .stepper li { position: relative; flex: 1; padding-right: 10px; }
-        .stepper li:last-child { flex: 0 0 auto; padding-right: 0; }
-        .stepper li:not(:last-child)::after {
-            content: ""; position: absolute; top: 13px; left: 36px; right: 8px; height: 2px; background: var(--line);
+        /* ===== Panel kiri ===== */
+        .panel {
+            width: 42%; min-width: 360px; max-width: 600px; flex-shrink: 0;
+            position: sticky; top: 0; align-self: flex-start; height: 100vh; overflow-y: auto;
+            color: #EAF2F8; padding: 56px 56px 40px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            background-color: var(--navy);
+            @if ($heroBg)
+            background-image: url('{{ $heroBg }}');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            @endif
         }
-        .stepper li.done:not(:last-child)::after { background: var(--leaf); }
-        .dot {
-            width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700; border: 2px solid var(--line); background: #fff; color: var(--ink-soft);
+        .panel::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(22,50,75,.88) 0%, rgba(22,50,75,.82) 45%, rgba(14,35,56,.96) 100%);
         }
-        .done .dot { background: var(--leaf); border-color: var(--leaf); color: #fff; }
-        .now .dot { background: var(--navy); border-color: var(--navy); color: #fff; animation: ring 2.4s ease-out infinite; }
-        @keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(22,50,75,.3); } 70%, 100% { box-shadow: 0 0 0 10px rgba(22,50,75,0); } }
-        .step-label { display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--ink-soft); line-height: 1.35; }
-        .now .step-label { color: var(--navy); }
-        .done .step-label { color: var(--leaf); }
-
-        .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); }
-        .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--blue); }
-
-        h1 { margin: 14px 0 0; font-size: clamp(2rem, 4.6vw, 2.7rem); line-height: 1.14; font-weight: 600; letter-spacing: -.02em; color: var(--navy); }
-        h1 em { font-style: normal; color: var(--blue); }
-        .lead { margin: 16px 0 0; font-size: 15px; line-height: 1.8; color: var(--ink-soft); max-width: 460px; }
-
-        /* Alamat email, bergaya alamat tujuan surat */
-        .addr { margin-top: 26px; padding: 4px 0 14px; border-bottom: 2px dashed #B9CFE2; }
-        .addr small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
-        .addr strong {
-            display: flex; align-items: center; gap: 10px; margin-top: 8px;
-            font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-weight: 600; color: var(--navy); word-break: break-all; line-height: 1.35;
+        .panel > * { position: relative; z-index: 1; }
+        .panel h2 { font-size: 30px; line-height: 1.3; font-weight: 600; margin: 44px 0 14px; color: #fff; }
+        .panel .lead { margin: 0; font-size: 13.5px; line-height: 1.75; color: #D2E0EC; }
+        .prep { margin-top: 28px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.2); }
+        .prep h3 { margin: 0 0 14px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #fff; }
+        .prep ol { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 14px; }
+        .prep li { counter-increment: s; display: flex; gap: 12px; align-items: flex-start; font-size: 13px; line-height: 1.55; color: #D2E0EC; }
+        .prep li::before {
+            content: counter(s); width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+            font-size: 12px; font-weight: 600; color: #fff;
+            display: flex; align-items: center; justify-content: center;
         }
-        .addr svg { flex-shrink: 0; }
+        .panel-foot { margin-top: 28px; font-size: 12px; line-height: 1.6; color: #A9BDCF; }
+        .panel-foot strong { display: block; color: #fff; font-weight: 600; margin-bottom: 2px; }
 
-        /* Pemberitahuan (tanpa kotak, hanya garis di sisi) */
-        .note { margin-top: 22px; padding: 4px 0 4px 14px; font-size: 13.5px; font-weight: 500; line-height: 1.65; border-left: 4px solid; }
-        .note.ok { color: var(--ok-ink); border-color: var(--ok-ink); background: linear-gradient(90deg, var(--ok-bg), transparent); }
-        .note.err { color: var(--error-ink); border-color: var(--error-ink); background: linear-gradient(90deg, var(--error-bg), transparent); }
+        /* ===== Header mobile ===== */
+        .mobile-brand {
+            display: none; position: relative; align-items: center; gap: 14px;
+            padding: 34px 20px 30px; overflow: hidden;
+            background-color: var(--navy);
+            @if ($heroBg)
+            background-image: url('{{ $heroBg }}');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            @endif
+        }
+        .mobile-brand::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(22,50,75,.72) 0%, rgba(22,50,75,.9) 100%);
+        }
+        .mobile-brand::after {
+            content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
+            background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 50%, var(--leaf) 100%);
+        }
+        .mobile-brand > * { position: relative; z-index: 1; }
+        .mobile-brand .brand-mark { width: 52px; height: 52px; }
+        .mobile-brand .brand-text { display: flex; flex-direction: column; gap: 3px; }
+        .mobile-brand .school-name { font-size: 17px; text-shadow: 0 1px 6px rgba(0,0,0,.35); }
+        .mobile-brand .school-sub { font-size: 12px; }
 
-        /* Panduan 3 langkah */
-        .guide-title { display: flex; align-items: center; gap: 12px; margin-top: 32px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
-        .guide-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-        .guide { list-style: none; margin: 16px 0 0; padding: 0; counter-reset: g; }
-        .guide li { position: relative; padding: 0 0 16px 40px; font-size: 14px; line-height: 1.65; color: var(--ink-soft); counter-increment: g; }
+        /* ===== Sisi kanan ===== */
+        .form-side {
+            flex: 1; min-width: 0; padding: 64px 56px 48px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: linear-gradient(180deg, var(--blue-soft) 0%, #fff 260px);
+        }
+        .form-side > * { width: 100%; max-width: 480px; text-align: left; }
+
+        .mail-ill { display: block; width: 84px; height: auto; margin: 0 0 18px; overflow: visible; animation: mail-float 3.6s ease-in-out infinite; }
+        .mail-ill .flap { transform-box: fill-box; transform-origin: 50% 0; animation: mail-flap 3.6s ease-in-out infinite; }
+        .mail-ill .badge { transform-box: fill-box; transform-origin: 50% 50%; animation: mail-pop 3.6s ease-in-out infinite; }
+        @keyframes mail-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes mail-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.92); } }
+        @keyframes mail-pop { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+
+        .form-side h1 { font-size: 28px; line-height: 1.25; font-weight: 600; margin: 0 0 8px; letter-spacing: -.2px; color: var(--navy); }
+        .form-side .sub { font-size: 14px; color: var(--ink-soft); margin: 0 0 22px; line-height: 1.65; }
+
+        /* Alamat tujuan email */
+        .mail-to {
+            display: flex; align-items: center; gap: 12px; margin: 0 0 22px;
+            padding: 14px 16px; border-radius: 8px; background: #F7FAFC; border: 1px solid var(--line);
+        }
+        .mail-to svg { flex-shrink: 0; }
+        .mail-to small { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 2px; }
+        .mail-to strong { display: block; font-size: 15px; font-weight: 600; color: var(--navy); word-break: break-all; line-height: 1.4; }
+
+        .error-box, .success-box {
+            font-size: 13px; border-radius: 8px; padding: 13px 16px; margin-bottom: 22px;
+            display: flex; align-items: flex-start; gap: 10px; font-weight: 500; line-height: 1.55;
+        }
+        .error-box { background: var(--error-bg); color: var(--error-ink); border: 1px solid rgba(180,69,63,.25); border-left: 4px solid var(--error-ink); }
+        .success-box { background: var(--ok-bg); color: var(--ok-ink); border: 1px solid rgba(47,107,69,.25); border-left: 4px solid var(--ok-ink); }
+        .error-box svg, .success-box svg { flex-shrink: 0; margin-top: 2px; }
+
+        /* Status setelah email berhasil diverifikasi */
+        .done-box {
+            display: flex; align-items: flex-start; gap: 12px; margin: 0 0 22px;
+            padding: 16px 18px; border-radius: 8px; background: var(--ok-bg);
+            border: 1px solid rgba(47,107,69,.25); border-left: 4px solid var(--ok-ink);
+            color: var(--ok-ink); font-size: 14px; line-height: 1.6; font-weight: 500;
+        }
+        .done-box svg { flex-shrink: 0; margin-top: 2px; }
+        .done-box strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+        .btn-link {
+            display: block; text-align: center; width: 100%;
+            background: var(--navy); color: #fff; border: 1.5px solid var(--navy);
+            font-weight: 600; font-size: 15px; padding: 14px; border-radius: 8px;
+            transition: background .15s ease;
+        }
+        .btn-link:hover { background: var(--navy-deep); }
+
+        /* Panduan: hanya tampil di HP (di desktop sudah ada di panel kiri) */
+        .guide { display: none; list-style: none; counter-reset: g; margin: 0 0 22px; padding: 0; }
+        .guide li { position: relative; padding: 0 0 14px 38px; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); counter-increment: g; }
         .guide li:last-child { padding-bottom: 0; }
         .guide li::before {
             content: counter(g); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
-            background: var(--blue-soft); color: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; background: var(--blue-soft); color: var(--navy);
         }
-        .guide li:not(:last-child)::after { content: ""; position: absolute; left: 12px; top: 30px; bottom: 4px; width: 2px; background: var(--line); }
         .guide b { color: var(--navy); font-weight: 600; }
 
-        /* Tombol */
-        .btn {
-            margin-top: 30px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            background: var(--navy); color: #fff; border: 1.5px solid var(--navy);
-            font-family: inherit; font-weight: 600; font-size: 15px; padding: 15px 22px; border-radius: 8px; cursor: pointer;
-            box-shadow: 0 12px 22px -14px rgba(22,50,75,.7);
-            transition: background .15s ease, transform .12s ease;
+        .btn-submit {
+            width: 100%; background: var(--navy); color: #fff; border: 1.5px solid var(--navy);
+            font-family: inherit; font-weight: 600; font-size: 15px; padding: 14px; border-radius: 8px;
+            cursor: pointer; margin-top: 2px; transition: background .15s ease, transform .12s ease;
         }
-        .btn:hover { background: var(--navy-deep); }
-        .btn:active { transform: scale(.99); }
-        .btn:disabled { opacity: .65; cursor: default; box-shadow: none; }
-        .btn svg { transition: transform .15s ease; }
-        .btn:not(:disabled):hover svg { transform: translateX(3px); }
+        .btn-submit:hover { background: var(--navy-deep); }
+        .btn-submit:active { transform: scale(.99); }
+        .btn-submit:disabled { opacity: .7; cursor: not-allowed; }
 
-        .home { display: inline-block; margin-top: 16px; font-size: 13.5px; font-weight: 600; color: var(--navy); border-bottom: 1.5px solid var(--blue); padding-bottom: 1px; }
-        .home:hover { color: var(--blue); }
+        .help-note {
+            display: flex; gap: 10px; align-items: flex-start; margin-top: 18px;
+            padding: 14px 16px; border-radius: 8px; background: #F7FAFC; border: 1px solid var(--line);
+            font-size: 12.5px; line-height: 1.65; color: var(--ink-soft);
+        }
+        .help-note svg { flex-shrink: 0; margin-top: 2px; }
+        .help-note strong { color: var(--navy); font-weight: 600; }
 
-        .help { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.75; color: var(--ink-soft); }
-        .help strong { color: var(--navy); font-weight: 600; }
+        .footer-link { text-align: center; font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 26px 0 0; padding-top: 22px; border-top: 1px solid var(--line); }
+        .footer-link form { margin: 0; }
+        .footer-link button {
+            background: none; border: none; padding: 0; font: inherit; font-weight: 700; cursor: pointer;
+            color: var(--navy); text-decoration: underline; text-decoration-color: var(--blue);
+            text-decoration-thickness: 1.5px; text-underline-offset: 4px;
+        }
+        .footer-link button:hover { color: var(--blue); }
 
-        .logout-line { margin-top: 18px; font-size: 13.5px; color: var(--ink-soft); }
-        .logout-line form { display: inline; }
-        .logout-line button { background: none; border: none; padding: 0; font: inherit; font-weight: 700; color: var(--navy); cursor: pointer; border-bottom: 1.5px solid var(--blue); }
-        .logout-line button:hover { color: var(--blue); }
-
+        /* ===== Responsif ===== */
+        @media (max-width: 1100px) {
+            .panel { width: 38%; min-width: 320px; padding: 48px 36px 32px; }
+            .form-side { padding: 56px 40px 44px; }
+        }
+        @media (max-width: 760px) {
+            .card { flex-direction: column; }
+            .card::before { display: none; }
+            .panel { display: none; }
+            .mobile-brand { display: flex; }
+            .form-side { padding: 26px 22px 40px; background: #fff; justify-content: flex-start; }
+            .form-side h1 { font-size: 23px; }
+            .guide { display: block; }
+        }
         @media (max-width: 480px) {
-            .stepper { margin-bottom: 26px; }
-            .step-label { font-size: 11px; }
-            .addr strong { font-size: 17px; }
+            .form-side { padding: 22px 16px 34px; }
+            .form-side h1 { font-size: 21px; }
+            .form-side .sub { font-size: 13px; margin-bottom: 20px; }
+            .mail-to strong { font-size: 14px; }
+            .btn-submit, .btn-link { padding: 13px; font-size: 14px; }
         }
-        @media (prefers-reduced-motion: reduce) {
-            .env, .seal, .now .dot, .rise { animation: none !important; }
-            .btn, .btn svg { transition: none !important; }
-        }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
     </style>
 </head>
 <body>
+
 <div class="page">
+    <div class="card">
 
-    {{-- ===== Panel kiri ===== --}}
-    <aside class="side">
-        <a href="/" class="brand" aria-label="Kembali ke beranda MindCheck">
-            <span class="brand-mark"><img src="{{ \App\Models\Pengaturan::url('logo', 'logo-smpn216.png') }}" alt="Logo SMPN 216 Jakarta"></span>
-            <span>
-                <span class="brand-name" style="display:block">SMPN 216 Jakarta</span>
-                <span class="brand-sub" style="display:block">Portal Skrining Kesehatan Mental</span>
-            </span>
-        </a>
+        @include('partials.panel_verifyemail_siswa')
 
-        <div class="art">
-            {{-- Ilustrasi amplop dengan segel --}}
-            <svg viewBox="0 0 260 200" fill="none" role="img" aria-label="Ilustrasi amplop email" class="env">
-                <ellipse cx="130" cy="186" rx="86" ry="8" fill="rgba(0,0,0,.28)"/>
-                <rect x="30" y="52" width="200" height="124" rx="12" fill="#EAF2F8"/>
-                <rect x="52" y="30" width="156" height="110" rx="6" fill="#fff"/>
-                <rect x="70" y="50" width="86" height="6" rx="3" fill="#DCEBF6"/>
-                <rect x="70" y="66" width="120" height="6" rx="3" fill="#DCEBF6"/>
-                <rect x="70" y="82" width="104" height="6" rx="3" fill="#DCEBF6"/>
-                <path d="M30 64c0-6.6 5.4-12 12-12h176c6.6 0 12 5.4 12 12v100c0 6.6-5.4 12-12 12H42c-6.6 0-12-5.4-12-12V64Z" fill="#DCEBF6"/>
-                <path d="M30 64l100 66 100-66" stroke="#4E8FC4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-                <path d="M30 168l72-58M230 168l-72-58" stroke="#B9D3EA" stroke-width="3" stroke-linecap="round"/>
-                <g class="seal">
-                    <circle cx="196" cy="62" r="26" fill="#4C7A52"/>
-                    <circle cx="196" cy="62" r="21" stroke="rgba(255,255,255,.55)" stroke-width="1.5" stroke-dasharray="3 3"/>
-                    <path d="M185 62.5l8 8 15-16" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        {{-- Isi --}}
+        <main class="form-side">
+
+            {{-- Ilustrasi amplop kecil --}}
+            <svg class="mail-ill" viewBox="0 0 120 96" fill="none" aria-hidden="true">
+                <rect x="8" y="22" width="92" height="62" rx="9" fill="#DCEBF6"/>
+                <path class="flap" d="M8 31l46 31 46-31" stroke="#4E8FC4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 80l34-28M100 80L66 52" stroke="#B9D3EA" stroke-width="2.5" stroke-linecap="round"/>
+                <g class="badge">
+                <circle cx="98" cy="24" r="17" fill="#4C7A52"/>
+                <circle cx="98" cy="24" r="13.5" stroke="rgba(255,255,255,.55)" stroke-width="1.2" stroke-dasharray="2.5 2.5"/>
+                <path d="M91 24.5l5 5 9-10" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
             </svg>
-            <h2>Satu langkah lagi</h2>
-            <p>Verifikasi email memastikan akun hanya digunakan oleh pemiliknya, sehingga hasil skrining tetap rahasia dan aman.</p>
-        </div>
 
-        <div class="side-foot">Dinas Pendidikan Provinsi DKI Jakarta</div>
-    </aside>
+            {{-- ===== Keadaan: menunggu email dibuka ===== --}}
+            <div id="pendingState">
 
-    {{-- ===== Isi kanan ===== --}}
-    <main class="main">
-        <div class="content">
+                <h1>Periksa emailmu</h1>
+                <p class="sub">Kami telah mengirim tautan verifikasi. Akunmu akan aktif setelah tautan tersebut dibuka.</p>
 
-            <ol class="stepper rise" aria-label="Tahapan pendaftaran">
-                <li class="done">
-                    <span class="dot" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-                    <span class="step-label">Daftar akun</span>
-                </li>
-                <li class="now" aria-current="step">
-                    <span class="dot" aria-hidden="true">2</span>
-                    <span class="step-label">Verifikasi email</span>
-                </li>
-                <li>
-                    <span class="dot" aria-hidden="true">3</span>
-                    <span class="step-label">Mulai skrining</span>
-                </li>
-            </ol>
-
-            <div class="rise" style="--d:.06s">
-                <p class="eyebrow">Langkah 2 dari 3</p>
-                <h1>Periksa emailmu untuk <em>mengaktifkan</em> akun</h1>
-                <p class="lead">Kami telah mengirim tautan verifikasi ke alamat berikut. Akunmu akan aktif setelah tautan tersebut dibuka.</p>
-
-                <div class="addr">
-                    <small>Dikirim ke</small>
-                    <strong>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4E8FC4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-                        <span>{{ auth()->user()->email }}</span>
-                    </strong>
+                <div class="mail-to">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4E8FC4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                    <div>
+                        <small>Dikirim ke</small>
+                        <strong>{{ auth()->user()->email }}</strong>
+                    </div>
                 </div>
 
-                @if (session('success'))
-                    <div class="note ok" role="status">{{ session('success') }}</div>
+                @if(session('success'))
+                    <div class="success-box" role="status">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 12l2 2 4-4" stroke="#2F6B45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#2F6B45" stroke-width="1.6"/></svg>
+                        <span>{{ session('success') }}</span>
+                    </div>
                 @endif
-                @if ($errors->any())
-                    <div class="note err" role="alert">{{ $errors->first() }}</div>
-                @endif
-            </div>
 
-            <div class="rise" style="--d:.12s">
-                <div class="guide-title">Langkah selanjutnya</div>
+                @if($errors->any())
+                    <div class="error-box" role="alert">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#B4453F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>{{ $errors->first() }}</span>
+                    </div>
+                @endif
+
+                {{-- Panduan (hanya tampil di HP) --}}
                 <ol class="guide">
                     <li><b>Buka kotak masuk emailmu</b> dan cari pesan dari MindCheck.</li>
                     <li><b>Klik tombol verifikasi</b> di dalam pesan tersebut.</li>
-                    <li><b>Kembali ke sini</b> dan mulailah mengisi skrining.</li>
+                    <li><b>Kembali ke sini</b>, halaman ini akan otomatis memberi tahu bila sudah berhasil.</li>
                 </ol>
 
                 <form method="POST" action="{{ route('verification.send') }}" id="resendForm">
                     @csrf
-                    <button type="submit" class="btn" id="btnResend">
+                    <button type="submit" class="btn-submit" id="btnResend">
                         <span id="btnLabel">Kirim ulang tautan verifikasi</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                     </button>
+
+                    <div class="help-note">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#4E8FC4" stroke-width="1.7"/><path d="M12 8v5M12 16h.01" stroke="#4E8FC4" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        <span><strong>Salah memasukkan email?</strong> Keluar dulu, lalu daftar ulang atau temui admin sekolah.</span>
+                    </div>
                 </form>
 
-                <a href="/" class="home">Sudah memverifikasi? Lanjut ke beranda</a>
-
-                <p class="help"><strong>Email tidak masuk?</strong> Periksa folder spam atau promosi. Jika salah memasukkan alamat email saat mendaftar, keluarlah terlebih dahulu, lalu daftar ulang atau temui admin sekolah.</p>
-
-                <div class="logout-line">
+                <div class="footer-link">
                     <form method="POST" action="/logout">
                         @csrf
                         Bukan kamu? <button type="submit">Keluar</button>
                     </form>
                 </div>
+
             </div>
 
-        </div>
-    </main>
+            {{-- ===== Keadaan: email sudah terverifikasi ===== --}}
+            <div id="doneState" hidden>
+
+                <h1>Email berhasil diverifikasi</h1>
+                <p class="sub">Akunmu sudah aktif. Silakan masuk untuk mulai mengisi skrining.</p>
+
+                <div class="done-box" role="status" aria-live="polite">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 12l2 2 4-4" stroke="#2F6B45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#2F6B45" stroke-width="1.6"/></svg>
+                    <span>
+                        <strong>Verifikasi berhasil</strong>
+                        Kamu akan diarahkan ke halaman masuk sebentar lagi.
+                    </span>
+                </div>
+
+                <a href="/login" class="btn-link" id="btnMasuk">Masuk sekarang</a>
+
+            </div>
+
+        </main>
+    </div>
 </div>
 
 <script>
+    // ===== Tombol kirim ulang dengan jeda 60 detik =====
     (function () {
         var KEY = 'verifikasiKirimUlang';
         var WAIT = 60; // detik
@@ -306,6 +359,7 @@
             }
         }
 
+        // Cegah klik ganda; hitungan mundur dimulai setelah halaman dimuat ulang
         form.addEventListener('submit', function () {
             try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
             btn.disabled = true;
@@ -315,5 +369,61 @@
         tick();
     })();
 </script>
+
+<script>
+    // ===== Cek otomatis apakah tautan di email sudah dibuka =====
+    (function () {
+        var statusUrl = @json(\Illuminate\Support\Facades\URL::temporarySignedRoute('verification.status', now()->addHours(3), ['id' => auth()->id()]));
+        var pending = document.getElementById('pendingState');
+        var done = document.getElementById('doneState');
+        var selesai = false;
+        var timer = null;
+
+        function berhasil() {
+            if (selesai) return;
+            selesai = true;
+            clearTimeout(timer);
+
+            pending.hidden = true;
+            done.hidden = false;
+            window.scrollTo(0, 0);
+
+            // Sesi sudah ditutup oleh server saat tautan dibuka, jadi cukup pindah ke login
+            setTimeout(function () { window.location.href = '/login'; }, 2500);
+        }
+
+        function cek() {
+            if (selesai) return;
+            clearTimeout(timer);
+
+            fetch(statusUrl, { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (d) {
+                    if (d && d.verified) { berhasil(); }
+                    else { timer = setTimeout(cek, 3000); }
+                })
+                .catch(function () { timer = setTimeout(cek, 5000); });
+        }
+
+        // Sinyal langsung dari tab "Email berhasil diverifikasi" di browser yang sama
+        try {
+            var ch = new BroadcastChannel('mindcheck-verify');
+            ch.onmessage = function (e) { if (e.data === 'verified') berhasil(); };
+        } catch (e) {}
+
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'emailVerified') berhasil();
+        });
+
+        // Cek ulang segera saat tab ini dibuka kembali (tab latar belakang diperlambat browser)
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) cek();
+        });
+        window.addEventListener('focus', cek);
+
+        timer = setTimeout(cek, 2000);
+    })();
+</script>
+
 </body>
 </html>

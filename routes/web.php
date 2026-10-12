@@ -5,8 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SdqController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SuperAdminController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
 
 // Redirect root ke welcome
 Route::get('/', function () {
@@ -37,8 +35,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sdq', [SdqController::class, 'index']);
     Route::post('/sdq/submit', [SdqController::class, 'submit']);
+
+    // Jaga-jaga kalau /sdq/submit terbuka lewat GET (refresh, tombol back,
+    // atau pemulihan tab). Diarahkan ke halaman hasil, bukan error 405.
+    Route::get('/sdq/submit', fn () => redirect('/sdq/hasil'));
+
     Route::get('/sdq/hasil', [SdqController::class, 'hasil']);
     Route::get('/dashboard-siswa', [DashboardController::class, 'siswa']);
+    Route::get('/hasil-skrining', [DashboardController::class, 'hasilSkrining']);
 });
 
 // Akses Guru BK / Admin
@@ -122,23 +126,35 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
     Route::post('/pengaturan', [SuperAdminController::class, 'pengaturanUpdate'])->name('superadmin.pengaturan.update');
 });
 
-// Verifikasi Email
+// =========================================================
+// VERIFIKASI EMAIL
+// =========================================================
+
+// Tautan yang diklik dari email.
+// SENGAJA di luar grup "auth": siswa bisa membukanya dari HP/browser lain
+// yang belum login. Keamanan dijaga oleh middleware "signed" dan
+// pencocokan hash email di AuthController@verificationVerify.
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verificationVerify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
+// Dicek berkala oleh halaman "Periksa emailmu" untuk tahu apakah tautan sudah dibuka.
+// URL-nya bertanda tangan (signed), dibuat langsung di view verify_email.
+Route::get('/email/verify-status/{id}', [AuthController::class, 'verificationStatus'])
+    ->middleware(['signed', 'throttle:60,1'])
+    ->name('verification.status');
+
+// Halaman singkat "Email berhasil diverifikasi" setelah tautan di email dibuka.
+Route::get('/email/verified', [AuthController::class, 'verificationDone'])
+    ->name('verification.done');
+
 Route::middleware('auth')->group(function () {
     // Halaman "cek emailmu"
-    Route::get('/email/verify', fn () => view('auth.verify_email'))
+    Route::get('/email/verify', [AuthController::class, 'verificationNotice'])
         ->name('verification.notice');
 
-    // Tautan yang diklik dari email
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-
-        return redirect()->route('login')->with('success', 'Email berhasil diverifikasi. Silakan login.');
-    })->middleware('signed')->name('verification.verify');
-
     // Kirim ulang tautan
-    Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-
-        return back()->with('success', 'Tautan verifikasi baru sudah dikirim ke emailmu.');
-    })->middleware('throttle:6,1')->name('verification.send');
+    Route::post('/email/verification-notification', [AuthController::class, 'verificationSend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 });

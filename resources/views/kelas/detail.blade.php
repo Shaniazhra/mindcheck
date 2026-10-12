@@ -21,12 +21,13 @@
             --ink-2: #475569;
             --ink-3: #6B7A90;
             --line: #E3E8F0;
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;
             --ok-bg: #E3F5ED;
             --warn: #B7690B;
             --warn-bg: #FDF1DC;
-            --act: #6D3FD0;
-            --act-bg: #EEE8FB;
+            --act: #C8303C;
+            --act-bg: #FDECEE;
             --ai: #0A78B5;
             --ai-bg: #E2F2FA;
         }
@@ -63,46 +64,118 @@
         }
 
         /* CSS khusus halaman Kelas */
-        /* CONTENT */
         .page-content {
             background: transparent;
         }
 
+        /* Kartu: garis tipis, tanpa bayangan */
         .table-card {
             background: #fff;
-            border: 1px solid #E3E8F0;
-            border-radius: 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(15,39,71,.025);
         }
+
+        .h-title { font-weight: 600; color: var(--ink); }
+        .h-sub   { color: var(--ink-3); margin-top: 2px; }
+
+        /* Badge status (pill) */
+        .pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .p-ok   { background: var(--ok-bg);   color: var(--ok); }
+        .p-warn { background: var(--warn-bg); color: var(--warn); }
+        .p-act  { background: var(--act-bg);  color: var(--act); }
+        .p-none { background: #E8ECF2;        color: var(--ink-2); }
+
+        /* Tabel polos */
+        .tbl th {
+            padding: 12px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink-3);
+            background: #F7F9FC;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+
+        .tbl td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            color: var(--ink-2);
+            white-space: nowrap;
+        }
+
+        .tbl tbody tr { border-bottom: 1px solid var(--line); }
+        .tbl tbody tr:last-child { border-bottom: none; }
+        .tbl tbody tr:hover { background: #F8FAFD; }
 
         .btn-detail {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: .75rem;
+            font-size: 13px;
             font-weight: 600;
-            color: #2563EB;
+            color: var(--brand);
             padding: 6px 12px;
-            border-radius: 9px;
-            border: 1px solid #E2E8F0;
+            border-radius: var(--r-sm);
+            border: 1px solid var(--line);
+            background: #fff;
             transition: .15s;
+            white-space: nowrap;
         }
 
         .btn-detail:hover {
-            background: #EFF6FF;
+            background: var(--brand-soft);
+            border-color: #B9D0F2;
+        }
+
+        /* ---------- Mobile: tabel biasa, geser ke samping (sama seperti tabel Riwayat) ---------- */
+        .tbl { min-width: 720px; }
+        .tbl th.no, .tbl td.no { width: 56px; text-align: center; padding-left: 14px; padding-right: 14px; }
+        .tbl td.no { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+        @media (max-width: 767px) {
+            .table-card { border-radius: 12px; }
         }
     </style>
 </head>
 
 <body class="flex min-h-screen">
 
-@include('partials.sidebar')
+@include('partials.sidebar_dashboard_gurubk')
+
+@php
+    // Ringkasan kelas (hanya tampilan)
+    $jmlSiswa  = $siswaList->count();
+    $jmlNormal = $siswaList->filter(fn ($x) => ($x->hasil_terakhir->hasil_label ?? null) === 'Normal')->count();
+    $jmlBorder = $siswaList->filter(fn ($x) => ($x->hasil_terakhir->hasil_label ?? null) === 'Borderline')->count();
+    $jmlAbn    = $siswaList->filter(fn ($x) => ($x->hasil_terakhir->hasil_label ?? null) === 'Abnormal')->count();
+    $jmlBelum  = $siswaList->filter(fn ($x) => empty($x->hasil_terakhir))->count();
+@endphp
 
 {{-- MAIN --}}
 <main class="flex-1 min-w-0 flex flex-col">
 
-    <div class="page-content flex-1 overflow-y-auto scrollbar-thin p-4 md:p-8 space-y-6">
+    {{-- Header khusus HP: tombol menu + judul kelas (di desktop sidebar sudah tampil) --}}
+    <header class="lg:hidden h-14 bg-white/90 backdrop-blur-md border-b border-[#E3E8F0] flex items-center gap-3 px-4 sticky top-0 z-30">
+        <button id="hamburger-btn" onclick="openSidebar()" aria-label="Buka menu"
+                class="w-9 h-9 rounded-[9px] border border-[#E3E8F0] flex items-center justify-center hover:bg-[#E8F0FB] transition-colors flex-shrink-0">
+            <span class="material-symbols-outlined text-[#475569]" style="font-size:20px">menu</span>
+        </button>
+        <div class="min-w-0">
+            <h2 class="text-base font-bold text-[#14233B] leading-tight truncate">Kelas {{ $kode }}</h2>
+            <p class="text-xs text-[#6B7A90] truncate">Siswa dan hasil skrining terakhir</p>
+        </div>
+    </header>
+
+    <div class="page-content flex-1 overflow-y-auto scrollbar-thin p-4 md:p-8 space-y-5 md:space-y-6">
 
         {{-- TOMBOL LULUS --}}
         @if(preg_match('/^9-\d+$/', trim($kode)) && $siswaList->count() > 0)
@@ -114,7 +187,7 @@
                 @csrf
 
                 <button type="submit"
-                        class="inline-flex items-center px-4 py-2.5 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition">
+                        class="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2.5 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition">
 
                     <span class="material-symbols-outlined align-middle mr-1.5" style="font-size:18px">
                         school
@@ -131,128 +204,98 @@
         {{-- TABEL --}}
         <section class="table-card">
 
-            <div class="px-5 py-4 border-b border-[#E3E8F0] flex items-center justify-between">
+            <div class="px-4 sm:px-5 md:px-6 py-4 md:py-5 border-b border-[#E3E8F0]">
 
-                <div>
-                    <h3 class="text-sm font-bold text-[#14233B]">
-                        Data Siswa
-                    </h3>
+                <h3 class="h-title">
+                    Data Siswa
+                </h3>
 
-                    <p class="text-xs text-[#6B7A90] mt-0.5">
-                        Daftar siswa dan hasil skrining terakhir
-                    </p>
+                <p class="h-sub">
+                    Daftar siswa dan hasil skrining terakhir
+                </p>
+
+                {{-- Ringkasan kelas --}}
+                <div class="flex flex-wrap items-center gap-2 mt-3.5">
+                    <span class="text-[13px] font-semibold text-[#14233B] mr-1">{{ $jmlSiswa }} siswa</span>
+                    <span class="pill p-ok">{{ $jmlNormal }} Normal</span>
+                    <span class="pill p-warn">{{ $jmlBorder }} Borderline</span>
+                    <span class="pill p-act">{{ $jmlAbn }} Abnormal</span>
+                    <span class="pill p-none">{{ $jmlBelum }} belum mengisi</span>
                 </div>
 
             </div>
 
+            {{-- Tabel (di HP bisa digeser ke samping) --}}
             <div class="overflow-x-auto scrollbar-thin">
 
-                <table class="w-full text-sm">
+                <table class="tbl w-full">
 
                     <thead>
-                        <tr class="bg-[#EFF6FF] text-xs text-[#1E40AF] uppercase tracking-wide">
-
-                            <th class="px-5 py-3 text-left font-semibold">
-                                Nama
-                            </th>
-
-                            <th class="px-5 py-3 text-left font-semibold">
-                                NIS
-                            </th>
-
-                            <th class="px-5 py-3 text-left font-semibold">
-                                Hasil Terakhir
-                            </th>
-
-                            <th class="px-5 py-3 text-left font-semibold">
-                                Total Skor
-                            </th>
-
-                            <th class="px-5 py-3 text-left font-semibold">
-                                Tanggal Isi
-                            </th>
-
-                            <th class="px-5 py-3 text-left font-semibold">
-                                Aksi
-                            </th>
-
+                        <tr>
+                            <th class="no">No</th>
+                            <th>Nama</th>
+                            <th>NIS</th>
+                            <th>Hasil Terakhir</th>
+                            <th>Total Skor</th>
+                            <th>Tanggal Isi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
 
-                    <tbody class="divide-y divide-[#E2E8F0]">
+                    <tbody>
 
                         @forelse($siswaList as $siswa)
 
                             @php
                                 $h = $siswa->hasil_terakhir;
 
-                                $badge = match($h->hasil_label ?? null) {
-                                    'Normal'     => 'bg-[#D1FAE5] text-[#059669]',
-                                    'Borderline' => 'bg-[#FEF3C7] text-[#D97706]',
-                                    'Abnormal'   => 'bg-[#EDE9FE] text-[#7C3AED]',
-                                    default      => 'bg-[#E2E8F0] text-[#475569]',
+                                $pClass = match($h->hasil_label ?? null) {
+                                    'Normal'     => 'p-ok',
+                                    'Borderline' => 'p-warn',
+                                    'Abnormal'   => 'p-act',
+                                    default      => 'p-none',
                                 };
                             @endphp
 
-                            <tr class="hover:bg-[#F8FAFC] transition-colors">
+                            <tr>
 
-                                <td class="px-5 py-3.5 font-semibold text-[#1E293B]">
+                                <td class="no">
+                                    {{ $loop->iteration }}
+                                </td>
+
+                                <td class="font-semibold text-[#14233B]">
                                     {{ $siswa->name }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-[#64748B]">
+                                <td>
                                     {{ $siswa->nis ?? '-' }}
                                 </td>
 
-                                <td class="px-5 py-3.5">
-
+                                <td>
                                     @if($h)
-
-                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ $badge }}">
-                                            {{ $h->hasil_label }}
-                                        </span>
-
+                                        <span class="pill {{ $pClass }}">{{ $h->hasil_label }}</span>
                                     @else
-
-                                        <span class="text-xs text-[#94A3B8] italic">
-                                            Belum mengisi
-                                        </span>
-
+                                        <span class="text-[12px] text-[#94A3B8] italic">Belum mengisi</span>
                                     @endif
-
                                 </td>
 
-                                <td class="px-5 py-3.5 text-[#64748B]">
+                                <td>
                                     {{ $h ? $h->total_kesulitan . '/40' : '-' }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-[#64748B] text-xs">
+                                <td>
                                     {{ $h ? $h->created_at->format('d/m/Y') : '-' }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-left">
-
+                                <td>
                                     @if($h)
-
-                                        <a href="/riwayat/{{ $h->id }}"
-                                           class="btn-detail">
-
+                                        <a href="/riwayat/{{ $h->id }}" class="btn-detail">
                                             Detail
-
-                                            <span class="material-symbols-outlined" style="font-size:13px">
-                                                chevron_right
-                                            </span>
-
+                                            <span class="material-symbols-outlined" style="font-size:15px">chevron_right</span>
                                         </a>
-
                                     @else
-
-                                        <span class="text-xs text-[#CBD5E1]">
-                                            -
-                                        </span>
-
+                                        <span class="text-[#CBD5E1]">-</span>
                                     @endif
-
                                 </td>
 
                             </tr>
@@ -260,14 +303,10 @@
                         @empty
 
                             <tr>
-
-                                <td colspan="6"
-                                    class="px-5 py-16 text-center text-[#64748B] text-sm">
-
+                                <td colspan="7"
+                                    class="!px-5 !py-16 text-center text-[#6B7A90]">
                                     Tidak ada siswa di kelas ini
-
                                 </td>
-
                             </tr>
 
                         @endforelse
@@ -280,7 +319,7 @@
 
         </section>
 
-        <footer class="pt-4 border-t border-[#E3E8F0] flex justify-between items-center flex-wrap gap-2">
+        <footer class="pt-4 border-t border-[#E3E8F0] flex flex-col sm:flex-row sm:justify-between items-center text-center gap-1 sm:gap-2">
 
             <p class="text-xs text-[#6B7A90]">
                 © 2026 SMPN 216 Jakarta — Portal Skrining Kesehatan Mental Siswa

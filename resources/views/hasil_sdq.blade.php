@@ -126,8 +126,8 @@
         .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .brand-logo {
             width: 40px; height: 40px; flex-shrink: 0;
-            border-radius: 50%; background: #fff; border: 1.5px solid var(--line);
-            padding: 4px; display: flex; align-items: center; justify-content: center;
+            background: transparent; border: none; box-shadow: none;
+            padding: 0; display: flex; align-items: center; justify-content: center;
         }
         .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
         .brand-name { font-size: .95rem; font-weight: 700; line-height: 1.2; }
@@ -143,14 +143,14 @@
         @media (min-width: 768px) { .topbar { padding: 0 32px; } }
 
         /* ============ Halaman ============ */
-        /* Lebar penuh: tepi kiri = logo, tepi kanan = tanggal (padding sama dengan .topbar) */
-        .wrap { width: 100%; max-width: none; margin: 0; padding: 28px 16px 40px; }
-        @media (min-width: 768px) { .wrap { padding: 44px 32px 48px; } }
+        /* Konten di tengah dengan lebar dibatasi, tidak mepet kiri-kanan */
+        .wrap { width: 100%; max-width: 1040px; margin: 0 auto; padding: 28px 16px 40px; }
+        @media (min-width: 768px) { .wrap { padding: 44px 40px 48px; } }
 
         /* ============ Hero hasil ============ */
         .hero {
             position: relative; overflow: hidden;
-            border-radius: 24px; padding: 34px 32px; color: #fff;
+            border-radius: 20px; padding: 24px 28px; color: #fff;
             background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy-mid) 55%, var(--brand-mid) 100%);
             box-shadow: 0 18px 40px -18px rgba(21,64,127,.65);
         }
@@ -159,39 +159,39 @@
             background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 42%);
         }
         .hero > * { position: relative; z-index: 1; }
-        .hero-in { display: flex; align-items: flex-start; gap: 24px; }
+        .hero-in { display: flex; align-items: flex-start; gap: 18px; }
         .hero-in > div { flex: 1; min-width: 0; }
         .tone-icon {
-            width: 72px; height: 72px; flex-shrink: 0;
-            border-radius: 22px; background: #fff;
+            width: 54px; height: 54px; flex-shrink: 0;
+            border-radius: 16px; background: #fff;
             display: flex; align-items: center; justify-content: center;
             color: var(--tone-fg);
             box-shadow: 0 14px 28px -14px rgba(0,0,0,.5);
             animation: pop .55s .15s cubic-bezier(.34,1.56,.64,1) both;
         }
-        .tone-icon .material-symbols-outlined { font-size: 38px; }
+        .tone-icon .material-symbols-outlined { font-size: 29px; }
         @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 
-        .hero .kicker { font-size: .78rem; font-weight: 600; color: #CFE0FA; }
+        .hero .kicker { font-size: .75rem; font-weight: 600; color: #CFE0FA; }
         .hero h1 {
-            margin-top: 6px;
-            font-size: clamp(1.7rem, 4.2vw, 2.4rem);
-            font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
+            margin-top: 4px;
+            font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+            font-weight: 700; line-height: 1.25; letter-spacing: -.01em;
         }
-        .hero .desc { margin-top: 14px; font-size: .95rem; line-height: 1.8; color: #DCE8FA; }
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+        .hero .desc { margin-top: 10px; font-size: .88rem; line-height: 1.7; color: #DCE8FA; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
         .tag-tone {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 7px 14px; border-radius: 999px;
+            padding: 6px 12px; border-radius: 999px;
             background: var(--tone-bg); color: var(--tone-fg);
-            font-size: .78rem; font-weight: 800;
+            font-size: .74rem; font-weight: 800;
         }
         .tag-tone .material-symbols-outlined { font-size: 16px; }
         .tag {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 7px 14px; border-radius: 999px;
+            padding: 6px 12px; border-radius: 999px;
             background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22);
-            font-size: .78rem; font-weight: 600; color: #fff;
+            font-size: .74rem; font-weight: 600; color: #fff;
         }
         .tag .material-symbols-outlined { font-size: 16px; opacity: .9; }
 
@@ -246,6 +246,7 @@
             background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
             border: 1px solid #FDE68A;
         }
+        .pesan > div { min-width: 0; }
         .pesan .p-ico {
             width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px;
             background: rgba(255,255,255,.85); color: #D97706;
@@ -262,6 +263,7 @@
             padding: 15px 18px; border-radius: 16px;
             background: #fff; border: 1px solid var(--line);
         }
+        .support > p { min-width: 0; }
         .support .material-symbols-outlined { color: #0369A1; font-size: 22px; flex-shrink: 0; margin-top: 1px; }
         .support p { font-size: .85rem; line-height: 1.7; color: var(--ink-2); }
         .support b { color: var(--ink); }
@@ -290,30 +292,74 @@
             font-size: .72rem; color: var(--ink-3);
         }
 
-        /* ============ Teks rata kanan-kiri (justify) ============
-           Hanya untuk paragraf. Judul, label, tag, dan tombol tetap rata kiri/tengah. */
+        /* ============ Perataan paragraf ============
+           Dasarnya rata kiri supaya jarak antarkata rapi di kolom sempit dan di HP.
+           Rata kanan-kiri (justify) hanya dipakai di layar lebar, pada paragraf yang
+           lebarnya sudah dibatasi, supaya jarak antarkata tidak melebar atau mepet.
+           Judul, label, tag, dan tombol tetap rata kiri/tengah. */
         .hero .desc,
         .timeline p,
         .todo span.s,
         .pesan p:not(.lbl),
         .support p,
         .note {
-            text-align: justify;
-            text-justify: inter-word;
-            hyphens: auto;
-            -webkit-hyphens: auto;
+            text-align: left;
             overflow-wrap: break-word;
+            word-spacing: normal;
+            text-wrap: pretty;
+        }
+        @media (min-width: 900px) {
+            .hero .desc            { max-width: 720px; text-align: justify; text-justify: inter-word; }
+            .pesan p:not(.lbl)     { max-width: 900px; text-align: justify; text-justify: inter-word; }
+            .support p             { max-width: 900px; text-align: justify; text-justify: inter-word; }
+            .note                  { max-width: 900px; text-align: justify; text-justify: inter-word; }
+        }
+
+        /* ============ Tablet ke bawah ============ */
+        @media (max-width: 899px) {
+            .hero { padding: 24px 22px; }
+            .cols { margin-top: 32px; }
         }
 
         /* ============ HP ============ */
         @media (max-width: 640px) {
-            .hero { padding: 26px 20px; border-radius: 22px; }
-            .hero-in { flex-direction: column; gap: 18px; }
-            .tone-icon { width: 62px; height: 62px; border-radius: 19px; }
-            .tone-icon .material-symbols-outlined { font-size: 33px; }
-            .pesan { padding: 16px; }
-            .actions { flex-direction: column-reverse; align-items: stretch; }
+            .topbar { height: 60px; padding: 0 12px; gap: 10px; }
+            .brand { gap: 10px; }
+            .brand-logo { width: 36px; height: 36px; }
+            .brand-name { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .brand-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+            .wrap { padding: 20px 16px calc(28px + env(safe-area-inset-bottom, 0px)); }
+
+            .hero { padding: 20px 16px; border-radius: 18px; }
+            .hero-in { flex-direction: column; gap: 12px; }
+            .tone-icon { width: 46px; height: 46px; border-radius: 14px; }
+            .tone-icon .material-symbols-outlined { font-size: 25px; }
+            .hero h1 { font-size: 1.2rem; }
+            .hero .desc { margin-top: 8px; font-size: .85rem; line-height: 1.7; }
+            .tags { margin-top: 14px; gap: 6px; }
+            .tag-tone, .tag { padding: 6px 11px; font-size: .72rem; }
+
+            .cols { gap: 28px; margin-top: 28px; }
+            .timeline { margin-top: 16px; }
+            .timeline li { padding-left: 46px; padding-bottom: 18px; }
+            .timeline p { font-size: .82rem; }
+            .todo li { gap: 12px; padding: 14px 0; }
+            .t-ico { width: 38px; height: 38px; border-radius: 12px; }
+            .t-ico .material-symbols-outlined { font-size: 20px; }
+            .todo span.s { font-size: .82rem; }
+
+            .pesan { margin-top: 28px; padding: 16px; gap: 12px; border-radius: 16px; }
+            .pesan .p-ico { width: 40px; height: 40px; border-radius: 12px; }
+            .pesan p { font-size: .9rem; }
+            .support { padding: 14px 16px; border-radius: 14px; }
+            .support p { font-size: .82rem; }
+
+            .actions { flex-direction: column-reverse; align-items: stretch; margin-top: 24px; }
             .btn { width: 100%; }
+            .note { font-size: .72rem; }
+
+            footer { flex-direction: column; align-items: center; text-align: center; margin-top: 26px; }
         }
         @media (prefers-reduced-motion: reduce) {
             .rise, .tone-icon { animation: none !important; }
@@ -419,10 +465,6 @@
             <a href="/dashboard-siswa" class="btn btn-primary">
                 Lihat hasil lengkapku
                 <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
-            <a href="/sdq" class="btn btn-ghost">
-                <span class="material-symbols-outlined">refresh</span>
-                Isi kuesioner kembali
             </a>
         </div>
 

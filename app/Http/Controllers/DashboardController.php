@@ -19,7 +19,7 @@ class DashboardController extends Controller
         // with('user') supaya NIS bisa ditampilkan tanpa query berulang.
         $hasilSdq = HasilSdq::with('user')->latest()->get();
 
-        return view('dashboard', compact('hasilSdq'));
+        return view('dashboard_gurubk', compact('hasilSdq'));
     }
 
     /**
@@ -47,6 +47,22 @@ class DashboardController extends Controller
             'hasilTerakhir',
             'riwayat'
         ));
+    }
+
+    /**
+     * Halaman hasil skrining lengkap milik siswa (terpisah dari Beranda).
+     */
+    public function hasilSkrining(Request $request)
+    {
+        $user = Auth::user();
+
+        $riwayat = HasilSdq::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $hasilTerakhir = $riwayat->first();
+
+        return view('hasil_siswa', compact('hasilTerakhir', 'riwayat'));
     }
 
     /**

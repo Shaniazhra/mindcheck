@@ -77,9 +77,6 @@
 
         Hanya dapat diakses oleh Guru Bimbingan &amp; Konseling (BK).
 
-        <div style="margin-top:14px">
-            Dinas Pendidikan Provinsi DKI Jakarta
-        </div>
     </div>
 </aside>
 

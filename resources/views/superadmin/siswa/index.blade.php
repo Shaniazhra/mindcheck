@@ -10,17 +10,22 @@
     @endphp
     <link rel="icon" type="image/png" href="{{ $logoUrl }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
+    {{-- Font tema: Inter (isi) dan Source Serif 4 (judul), dipakai oleh tema.css --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    @vite('resources/css/tema.css')
     <style>
         /* ============ Token: sama dengan Dashboard Super Admin ============ */
         :root {
             --bg: #F3F5F9; --ink: #14233B; --ink-2: #475569; --ink-3: #6B7A90; --line: #E3E8F0;
             --accent: #4B5FD6; --accent-soft: #ECEFFC; --accent-line: #C9D0F6; --accent-glow: #8D9BF0;
         }
+        /* Font body diatur oleh tema.css (Inter), jadi tidak diulang di sini */
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--ink);
+            color: var(--ink);
             background: radial-gradient(900px 420px at 90% -100px, #E1E6FA 0%, transparent 70%), var(--bg);
             background-attachment: fixed;
         }
@@ -108,60 +113,7 @@
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 {{-- ================= SIDEBAR ================= --}}
-<aside id="sidebar" aria-label="Navigasi utama">
-
-    <a href="{{ url('/') }}" title="Lihat halaman beranda" class="flex items-center gap-3 px-2 py-1 hover:opacity-90 transition-opacity">
-        <div class="w-11 h-11 rounded-xl overflow-hidden bg-white flex-shrink-0 p-1">
-            <img src="{{ $logoUrl }}" alt="Logo SMPN 216" class="w-full h-full object-contain">
-        </div>
-        <div class="leading-tight min-w-0">
-            <h1 class="text-[15px] font-bold text-white">SMPN 216 Jakarta</h1>
-            <p class="text-[11.5px] text-[#A9B2DC] mt-0.5">Skrining Kesehatan Mental</p>
-        </div>
-    </a>
-
-    <span class="admin-badge">
-        <span class="material-symbols-outlined" style="font-size:14px">shield_person</span>
-        Super Admin
-    </span>
-
-    <nav class="flex-1 overflow-y-auto scrollbar-thin mt-1">
-        <p class="nav-label">Menu utama</p>
-
-        <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
-            <span class="material-symbols-outlined" style="font-size:21px">dashboard</span> Dashboard
-        </a>
-        <a href="{{ route('superadmin.guru.index') }}" class="nav-link">
-            <span class="material-symbols-outlined" style="font-size:21px">groups</span> Data Guru BK
-        </a>
-        <a href="{{ route('superadmin.siswa.index') }}" class="nav-link active" aria-current="page">
-            <span class="material-symbols-outlined" style="font-size:21px">school</span> Data Siswa
-        </a>
-        <a href="{{ route('superadmin.kuesioner.index') }}" class="nav-link">
-            <span class="material-symbols-outlined" style="font-size:21px">quiz</span> Data Kuesioner
-        </a>
-
-        <p class="nav-label">Sistem</p>
-
-        <a href="{{ route('superadmin.pengaturan.index') }}" class="nav-link">
-            <span class="material-symbols-outlined" style="font-size:21px">settings</span> Pengaturan Tampilan
-        </a>
-    </nav>
-
-    <div class="side-user">
-        <div class="s-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</div>
-        <div class="overflow-hidden min-w-0">
-            <p class="text-sm font-semibold truncate text-white">{{ Auth::user()->name }}</p>
-            <p class="text-xs text-[#A9B2DC] truncate">Super Admin</p>
-        </div>
-        <form method="POST" action="/logout" class="ml-auto">
-            @csrf
-            <button type="submit" title="Keluar" aria-label="Keluar" class="logout">
-                <span class="material-symbols-outlined" style="font-size:19px">logout</span>
-            </button>
-        </form>
-    </div>
-</aside>
+@include('partials.sidebar_superadmin')
 
 {{-- ================= MAIN ================= --}}
 <main class="flex-1 min-w-0 flex flex-col">

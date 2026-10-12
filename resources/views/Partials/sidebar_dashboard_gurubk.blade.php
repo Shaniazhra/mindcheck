@@ -1,20 +1,110 @@
-{{-- Sidebar Guru BK: dipakai semua halaman lewat @include('partials.sidebar') --}}
-{{-- Kartu tindakan hanya tampil bila halaman mengirim $cntTindakan (dashboard) --}}
-{{-- CSS sidebar umum ada di tema.css; di sini hanya CSS khusus kartu tindakan --}}
+{{-- Sidebar Guru BK untuk dashboard: @include('partials.sidebar_dashboard_gurubk') --}}
+{{-- Jarak/ukuran (padding sidebar, menu, kartu user) mengikuti tema.css seperti sidebar Guru BK. --}}
+{{-- Warna latar sidebar, cahaya, dan label menu memakai biru bawaan tema.css. --}}
 
 <style>
-    .side-card {
-        margin-bottom: 12px;
-        padding: 14px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, rgba(91,157,245,.28), rgba(91,157,245,.08));
-        border: 1px solid rgba(143,187,250,.25);
+    #sidebar-overlay {
+        background: rgba(15, 39, 71, .5);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
     }
 
-    .side-card b {
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1;
+    #sidebar {
+        border-right: 1px solid rgba(255,255,255,.08);
+    }
+
+    /* Hilangkan scrollbar horizontal (garis putih) saat hover menu */
+    #sidebar nav {
+        overflow-x: hidden;
+    }
+
+    /* Logo + nama sekolah, garis di bawahnya */
+    #sidebar a.gb-brand {
+        position: relative;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255,255,255,.09);
+    }
+
+    #sidebar a.gb-brand::after {
+        content: "";
+        position: absolute;
+        left: 8px;
+        bottom: -1px;
+        width: 58px;
+        height: 2px;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #5B9DF5, #8FBBFA);
+    }
+
+    #sidebar .nav-link {
+        color: #B7C7DD;
+        border: 1px solid transparent;
+        transition: color .18s ease, background .18s ease,
+                    border-color .18s ease, transform .18s ease;
+    }
+
+    #sidebar .nav-link .material-symbols-outlined {
+        color: #93A9C9;
+        transition: color .18s ease;
+    }
+
+    #sidebar .nav-link:hover {
+        color: #fff;
+        background: rgba(255,255,255,.065);
+        border-color: rgba(255,255,255,.07);
+        transform: translateX(2px);
+    }
+
+    #sidebar .nav-link:hover .material-symbols-outlined {
+        color: #8FBBFA;
+    }
+
+    #sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(100deg, rgba(91,157,245,.32), rgba(91,157,245,.08));
+        border-color: rgba(143,187,250,.25);
+        box-shadow: inset 3px 0 0 #8FBBFA;
+    }
+
+    /* Penanda aktif: garis kiri bawaan tema dimatikan, diganti garis tepi dalam di atas */
+    #sidebar .nav-link.active::before {
+        content: none;
+    }
+
+    #sidebar .nav-link.active .material-symbols-outlined {
+        color: #8FBBFA;
+    }
+
+    #sidebar .side-user {
+        background: rgba(255,255,255,.055);
+        border: 1px solid rgba(255,255,255,.085);
+        border-radius: 14px;
+    }
+
+    #sidebar .side-user .logout {
+        color: #9FB3CF;
+    }
+
+    .gb-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        background: linear-gradient(145deg, #5B9DF5, #3B7DDD);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 12px;
+        box-shadow: 0 5px 14px rgba(59,125,221,.25);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #sidebar .nav-link {
+            transition: none !important;
+        }
     }
 </style>
 
@@ -30,9 +120,9 @@
 
     <a href="{{ url('/') }}"
        title="Lihat halaman beranda"
-       class="flex items-center gap-3 px-2 py-1 hover:opacity-90 transition-opacity">
+       class="gb-brand flex items-center gap-3 px-2 py-1 hover:opacity-90 transition-opacity">
 
-        {{-- Background putih logo dihapus --}}
+        {{-- Tanpa background logo --}}
         <div class="w-11 h-11 overflow-hidden flex-shrink-0">
             <img src="{{ \App\Models\Pengaturan::url('logo', 'logo-smpn216.png') }}"
                  alt="Logo SMPN 216"
@@ -49,6 +139,7 @@
 
     <nav class="flex-1 overflow-y-auto scrollbar-thin mt-2">
 
+        {{-- Kategori: Menu utama --}}
         <p class="nav-label">Menu utama</p>
 
         <a href="/dashboard"
@@ -59,6 +150,9 @@
             Dashboard
         </a>
 
+        {{-- Kategori: Skrining --}}
+        <p class="nav-label">Skrining</p>
+
         <a href="/riwayat"
            class="nav-link {{ $onRiwayat ? 'active' : '' }}">
             <span class="material-symbols-outlined" style="font-size:21px">
@@ -66,6 +160,9 @@
             </span>
             Riwayat Skrining
         </a>
+
+        {{-- Kategori: Data siswa --}}
+        <p class="nav-label">Data siswa</p>
 
         <a href="{{ route('kelas.index') }}"
            class="nav-link {{ request()->routeIs('kelas.*') ? 'active' : '' }}">
@@ -88,31 +185,9 @@
 
     </nav>
 
-    @if(isset($cntTindakan, $totalSiswa))
-        <div class="side-card">
-            <p class="text-[12px] text-[#B7C7DD]">
-                Perlu tindakan hari ini
-            </p>
-
-            <div class="flex items-end justify-between mt-1.5">
-                <b>{{ $cntTindakan }}</b>
-
-                <span class="text-xs text-[#B7C7DD]">
-                    dari {{ $totalSiswa }} siswa
-                </span>
-            </div>
-
-            <div class="h-1.5 rounded-full bg-white/15 mt-3 overflow-hidden">
-                <div class="h-full rounded-full bg-[#8FBBFA]"
-                     style="width:{{ $totalSiswa > 0 ? round($cntTindakan / $totalSiswa * 100) : 0 }}%">
-                </div>
-            </div>
-        </div>
-    @endif
-
     <div class="side-user">
 
-        <div class="w-10 h-10 rounded-full bg-[#3B7DDD] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        <div class="gb-avatar">
             {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
         </div>
 

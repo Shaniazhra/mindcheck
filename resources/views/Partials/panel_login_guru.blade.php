@@ -36,7 +36,6 @@
 
     <div class="panel-foot">
         Halaman ini khusus Guru BK dan admin sekolah.<br>
-        Dinas Pendidikan Provinsi DKI Jakarta
     </div>
 </aside>
 

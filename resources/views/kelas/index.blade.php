@@ -37,7 +37,7 @@
         .hero-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.14); pointer-events: none; }
         .hero-ring.r1 { width: 380px; height: 380px; right: -90px; top: -150px; background: radial-gradient(circle, rgba(255,255,255,.12), transparent 70%); }
         .hero-ring.r2 { width: 230px; height: 230px; right: 190px; bottom: -130px; }
-        .hero-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22); font-size: .75rem; font-weight: 600; }
+        .hero-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.14); font-size: .75rem; font-weight: 600; }
 
         /* Kelas */
         [hidden] { display: none !important; }
@@ -72,7 +72,7 @@
         : ($bisaGrup ? $grup->sortKeys() : collect(['' => $kumpulan]));
 @endphp
 
-@include('partials.sidebar')
+@include('partials.sidebar_dashboard_gurubk')
 
 {{-- MAIN --}}
 <main class="flex-1 min-w-0 flex flex-col">
@@ -126,8 +126,9 @@
                 @if($totalKelas > 0)
                     <div class="relative w-full md:w-72 flex-shrink-0">
                         <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" style="font-size:18px">search</span>
-                        <input id="cari-kelas" type="search" placeholder="Cari kelas, misalnya 7A" aria-label="Cari kelas" autocomplete="off"
-                            class="w-full h-11 pl-10 pr-4 rounded-full bg-white/95 text-sm font-medium text-[#14233B] placeholder:text-[#94A3B8] placeholder:font-normal border border-transparent focus:outline-none focus:ring-4 focus:ring-white/35">
+                        <input id="cari-kelas" type="search" placeholder="Cari kelas, misalnya 7-1" aria-label="Cari kelas" autocomplete="off"
+                            class="w-full h-11 pl-10 pr-4 rounded-[var(--r-field)] bg-white/95 text-sm font-medium text-[#14233B] placeholder:text-[#94A3B8] placeholder:font-normal border border-white/[.14] focus:outline-none focus:ring-4 focus:ring-white/35">
+
                     </div>
                 @endif
 

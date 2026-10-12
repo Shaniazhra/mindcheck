@@ -27,7 +27,6 @@
     <div class="panel-foot">
         <strong>Tidak bisa membuka email?</strong>
         Temui admin sekolah. Beliau bisa membantu mengatur ulang passwordmu.
-        <div style="margin-top:14px">Dinas Pendidikan Provinsi DKI Jakarta</div>
     </div>
 </aside>
 

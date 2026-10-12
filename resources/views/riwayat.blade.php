@@ -15,9 +15,10 @@
         :root {
             --navy: #0F2747; --brand: #1D5FBF; --brand-soft: #E8F0FB; --bg: #F3F5F9;
             --ink: #14233B; --ink-2: #475569; --ink-3: #6B7A90; --line: #E3E8F0;
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;   --ok-bg: #E3F5ED;
             --warn: #B7690B; --warn-bg: #FDF1DC;
-            --act: #6D3FD0;  --act-bg: #EEE8FB;
+            --act: #C8303C;  --act-bg: #FDECEE;
             --ai: #0A78B5;   --ai-bg: #E2F2FA;
         }
 
@@ -90,6 +91,17 @@
         .sc.mid { background: var(--warn-bg); color: var(--warn); }
         .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-soft); border: 1px solid #D5E3F7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--brand); flex-shrink: 0; }
 
+        /* ---------- Perapian tampilan mobile ---------- */
+        @media (max-width: 639px) {
+            .hero { padding: 22px 18px; border-radius: 16px; }
+            .hero-ring.r1 { width: 260px; height: 260px; right: -100px; top: -110px; }
+            .hero-ring.r2 { display: none; }
+            .card { border-radius: 12px; }
+            #tabel-riwayat th { padding: 10px 14px; }
+            #tabel-riwayat td { padding: 12px 14px; }
+            .legend-skor { gap: 8px 16px; }
+        }
+
         @media print {
             header, form, nav, .no-print { display: none !important; }
             body { background: #fff; }
@@ -152,7 +164,7 @@
         </span>
     </header>
 
-    <div class="flex-1 p-4 md:p-8 space-y-6 max-w-[1400px] w-full mx-auto">
+    <div class="flex-1 p-4 md:p-8 space-y-5 md:space-y-6 max-w-[1400px] w-full mx-auto">
 
         {{-- ===== Banner ===== --}}
         <section class="hero">
@@ -208,7 +220,7 @@
                     </select>
                 </div>
 
-                <div class="lg:col-span-2 flex items-center gap-3">
+                <div class="lg:col-span-2 flex items-center gap-3 sm:col-span-2">
                     <button type="submit" class="btn-primary flex-1">
                         <span class="material-symbols-outlined" style="font-size:18px">filter_list</span>
                         Terapkan
@@ -235,7 +247,7 @@
 
         {{-- ===== Tabel ===== --}}
         <section class="card overflow-hidden">
-            <div class="px-5 md:px-6 py-4 md:py-5 border-b border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3">
+            <div class="px-4 sm:px-5 md:px-6 py-4 md:py-5 border-b border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-start gap-3">
                     <span class="ico"><span class="material-symbols-outlined" style="font-size:20px">table_chart</span></span>
                     <div>
@@ -253,7 +265,7 @@
             </div>
 
             {{-- Keterangan --}}
-            <div class="px-5 md:px-6 py-3 bg-[#F7F9FC] border-b border-[#E3E8F0] flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-[#6B7A90]">
+            <div class="legend-skor px-4 sm:px-5 md:px-6 py-3 bg-[#F7F9FC] border-b border-[#E3E8F0] flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-[#6B7A90]">
                 <span class="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span class="font-semibold text-[#475569]">Skor:</span>
                     <span><strong class="text-[#14233B]">E</strong> Emosional</span>
@@ -379,8 +391,8 @@
             </div>
 
             {{-- Paginasi --}}
-            <div class="px-5 md:px-6 py-4 border-t border-[#E3E8F0] flex items-center justify-between flex-wrap gap-3 no-print">
-                <p class="text-xs text-[#6B7A90]">
+            <div class="px-4 sm:px-5 md:px-6 py-4 border-t border-[#E3E8F0] flex items-center justify-center sm:justify-between flex-wrap gap-3 no-print">
+                <p class="text-xs text-[#6B7A90] text-center sm:text-left">
                     @if($hasilSdq->total() > 0)
                         Menampilkan <span class="font-bold text-[#14233B]">{{ $hasilSdq->firstItem() }}–{{ $hasilSdq->lastItem() }}</span>
                         dari <span class="font-bold text-[#14233B]">{{ $hasilSdq->total() }}</span> data
@@ -390,7 +402,7 @@
                 </p>
 
                 @if($hasilSdq->lastPage() > 1)
-                <nav class="flex items-center gap-1.5 flex-wrap" aria-label="Paginasi riwayat skrining">
+                <nav class="flex items-center justify-center gap-1.5 flex-wrap" aria-label="Paginasi riwayat skrining">
                     @if($hasilSdq->onFirstPage())
                         <span class="pg off"><span class="material-symbols-outlined" style="font-size:18px">chevron_left</span></span>
                     @else

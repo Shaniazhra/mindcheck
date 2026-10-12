@@ -1,946 +1,518 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <title>Dashboard Super Admin — SMPN 216 Jakarta</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@vite('resources/css/tema.css')
 
-    @php
-        $logoUrl    = \App\Models\Pengaturan::url('logo', 'logo-smpn216.png');
-        $sekarang   = now('Asia/Jakarta')->locale('id');
-        $persenAbn  = $totalKuesioner > 0 ? round($cntAbnormal / $totalKuesioner * 100) : 0;
-        $rasio      = $totalGuru > 0 ? round($totalSiswa / $totalGuru) : null;
-        $rataIsi    = $totalSiswa > 0 ? number_format($totalKuesioner / $totalSiswa, 1, ',', '.') : '-';
-        $totalAkun  = $totalGuru + $totalSiswa;
-        $namaDepan  = \Illuminate\Support\Str::title(\Illuminate\Support\Str::words(Auth::user()->name, 2, ''));
+@php
+    $logoSidebar = \App\Models\Pengaturan::url('logo');
 
-        // Warna status sama dengan dashboard Guru BK dan Siswa:
-        // biru = umum, hijau = baik, kuning = waspada, ungu = abnormal
-        $stats = [
-            ['label' => 'Guru BK',             'val' => $totalGuru,      'sub' => 'Akun aktif',                'icon' => 'groups',         'c' => '#1D5FBF', 'cs' => '#E8F0FB', 'href' => route('superadmin.guru.index')],
-            ['label' => 'Siswa terdaftar',     'val' => $totalSiswa,     'sub' => 'Akun siswa',                'icon' => 'school',         'c' => '#0F8A5F', 'cs' => '#E3F5ED', 'href' => route('superadmin.siswa.index')],
-            ['label' => 'Pengisian kuesioner', 'val' => $totalKuesioner, 'sub' => 'Seluruh hasil SDQ',         'icon' => 'quiz',           'c' => '#B7690B', 'cs' => '#FDF1DC', 'href' => route('superadmin.kuesioner.index')],
-            ['label' => 'Kasus abnormal',      'val' => $cntAbnormal,    'sub' => $persenAbn . '% dari pengisian', 'icon' => 'priority_high', 'c' => '#6D3FD0', 'cs' => '#EEE8FB', 'href' => route('superadmin.kuesioner.index', ['label' => 'Abnormal'])],
-        ];
+    $menuSuperAdmin = [
+        [
+            'judul' => 'Menu Utama',
+            'items' => [
+                [
+                    'label' => 'Dashboard',
+                    'icon' => 'dashboard',
+                    'route' => 'superadmin.dashboard',
+                    'match' => ['superadmin.dashboard'],
+                ],
+            ],
+        ],
+        [
+            'judul' => 'Manajemen data',
+            'items' => [
+                [
+                    'label' => 'Data Guru BK',
+                    'icon' => 'groups',
+                    'route' => 'superadmin.guru.index',
+                    'match' => ['superadmin.guru.*'],
+                ],
+                [
+                    'label' => 'Data Siswa',
+                    'icon' => 'school',
+                    'route' => 'superadmin.siswa.index',
+                    'match' => ['superadmin.siswa.*'],
+                ],
+                [
+                    'label' => 'Data Kuesioner',
+                    'icon' => 'fact_check',
+                    'route' => 'superadmin.kuesioner.index',
+                    'match' => ['superadmin.kuesioner.*'],
+                ],
+            ],
+        ],
+        [
+            'judul' => 'Pengaturan',
+            'items' => [
+                [
+                    'label' => 'Tampilan Portal',
+                    'icon' => 'web',
+                    'route' => 'superadmin.pengaturan.index',
+                    'match' => ['superadmin.pengaturan.*'],
+                ],
+            ],
+        ],
+    ];
+@endphp
 
-        $aksi = [
-            ['t' => 'Tambah akun Guru BK',     's' => 'Buat akun Guru BK baru',             'icon' => 'person_add',      'href' => route('superadmin.guru.create')],
-            ['t' => 'Kelola data siswa',       's' => 'Edit, reset password, hapus',        'icon' => 'manage_accounts', 'href' => route('superadmin.siswa.index')],
-            ['t' => 'Lihat data kuesioner',    's' => 'Semua hasil skrining SDQ',           'icon' => 'fact_check',      'href' => route('superadmin.kuesioner.index')],
-            ['t' => 'Logo & gambar beranda',   's' => 'Atur tampilan portal',               'icon' => 'image',           'href' => route('superadmin.pengaturan.index')],
-        ];
-    @endphp
+<style>
+    :root {
+        --sa-width: 270px; /* ubah angka ini jika lebar sidebar perlu disamakan */
+        --sa-sidebar: #12143A;
+        --sa-sidebar-2: #1A1D52;
+        --sa-accent: #4B5FD6;
+        --sa-accent-light: #8D9BF0;
+        --sa-text: #E8EBFF;
+        --sa-muted: #A5ADD0;
+        --sa-line: rgba(255,255,255,.09);
+    }
 
-    <link rel="icon" type="image/png" href="{{ $logoUrl }}">
+    #sidebar-overlay {
+        display: block; /* tema.css menyembunyikan dengan display:none */
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        background: rgba(10, 15, 40, .58);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .25s ease, visibility .25s ease;
+    }
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    #sidebar-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:wght@400;500;600;700&display=swap" rel="stylesheet">
+    #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        width: min(var(--sa-width), 86vw);
+        height: 100dvh;
+        padding: 0; /* tema.css memberi padding sendiri, di sini tidak dipakai */
+        overflow: hidden;
+        color: var(--sa-text);
+        background:
+            radial-gradient(350px 240px at -15% -5%, rgba(75,95,214,.30), transparent 70%),
+            linear-gradient(180deg, var(--sa-sidebar) 0%, #15173F 55%, #10122F 100%);
+        border-right: 1px solid rgba(255,255,255,.08);
+        box-shadow: 16px 0 40px -30px rgba(0,0,0,.5);
+        -webkit-tap-highlight-color: transparent;
 
-    @vite('resources/css/tema.css')
+        /* Tertutup: tidak bisa difokus lewat keyboard / pembaca layar */
+        visibility: hidden;
+        transform: translateX(-105%);
+        transition: transform .28s cubic-bezier(.2,.7,.2,1), visibility 0s linear .28s;
+    }
 
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    /* Matikan cahaya biru bawaan tema.css, sidebar ini punya gradiennya sendiri */
+    #sidebar::after {
+        content: none;
+    }
 
-    <style>
-        /* ============ Token: keluarga warna sama dengan Guru BK dan Siswa ============ */
-        :root {
-            --navy: #0F2747; --brand: #1D5FBF; --brand-soft: #E8F0FB; --bg: #F3F5F9;
-            --ink: #14233B; --ink-2: #475569; --ink-3: #6B7A90; --line: #E3E8F0;
-            --ok: #0F8A5F;   --ok-bg: #E3F5ED;
-            --warn: #B7690B; --warn-bg: #FDF1DC;
-            --act: #6D3FD0;  --act-bg: #EEE8FB;
+    #sidebar.open {
+        visibility: visible;
+        transform: translateX(0);
+        transition: transform .28s cubic-bezier(.2,.7,.2,1), visibility 0s;
+    }
 
-            /* Pembeda Super Admin: keluarga indigo */
-            --ind-950: #12143A;
-            --ind-900: #1A1D52;
-            --accent: #4B5FD6;
-            --accent-soft: #ECEFFC;
-            --accent-line: #C9D0F6;
-            --accent-glow: #8D9BF0;
+    /* Brand: logo + teks, jarak mengikuti sidebar Guru BK */
+    .sa-brand {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 22px 14px 0;
+        padding: 4px 8px 14px;
+        border-bottom: 1px solid var(--sa-line);
+    }
+
+    .sa-brand::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 8px;
+        width: 58px;
+        height: 2px;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--sa-accent), var(--sa-accent-light));
+    }
+
+    .sa-brand-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Background logo dihilangkan */
+    .sa-brand-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        overflow: hidden;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .sa-brand-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .sa-brand-text {
+        display: block;
+        min-width: 0;
+    }
+
+    /* Font mengikuti tema.css: judul serif 16px/600, subjudul 12px */
+    .sa-brand-name {
+        display: block;
+        overflow: hidden;
+        color: #fff;
+        font-family: var(--font-serif);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .sa-brand-caption {
+        display: block;
+        overflow: hidden;
+        margin-top: 2px;
+        color: #A9B2DC;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        line-height: 1.3;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    /* Badge Super Admin */
+    .sa-badge {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        gap: 6px;
+        margin: 14px 14px 0;
+        padding: 6px 12px;
+        color: #D5DAFF;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 8px;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .sa-nav {
+        flex: 1;
+        min-height: 0;
+        padding: 0 14px 16px;
+        margin-top: 8px;
+        overflow-y: auto;
+        overflow-x: hidden; /* cegah scrollbar horizontal (garis putih) saat hover menu */
+        overscroll-behavior: contain; /* scroll menu tidak ikut menggulung halaman di belakang */
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,.16) transparent;
+    }
+
+    .sa-nav::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .sa-nav::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,.16);
+        border-radius: 99px;
+    }
+
+    /* Judul kategori: sama dengan .nav-label di sidebar Guru BK */
+    .sa-nav-heading {
+        display: block;
+        padding: 0 12px;
+        margin: 22px 0 8px;
+        color: #7F97B8;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .sa-nav-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 12px;
+        margin: 0 0 4px;
+        color: #B7BEDC;
+        font-family: var(--font-sans);
+        font-size: 13.5px;
+        font-weight: 500;
+        border: 1px solid transparent;
+        border-radius: var(--r-field, 10px);
+        transition: color .18s ease, background .18s ease,
+                    border-color .18s ease, transform .18s ease;
+    }
+
+    .sa-nav-link > span:last-child {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .sa-nav-link .sa-nav-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 23px;
+        height: 23px;
+        flex-shrink: 0;
+        color: #8F99C8;
+        transition: color .18s ease;
+    }
+
+    .sa-nav-link .sa-nav-icon .material-symbols-outlined {
+        font-size: 21px;
+    }
+
+    .sa-nav-link:active {
+        background: rgba(255,255,255,.09);
+    }
+
+    /* Efek hover hanya di perangkat yang punya kursor (di HP tidak "menempel") */
+    @media (hover: hover) {
+        .sa-nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,.065);
+            border-color: rgba(255,255,255,.07);
+            transform: translateX(2px);
         }
 
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            color: var(--ink);
-            background: radial-gradient(900px 420px at 90% -100px, #E1E6FA 0%, transparent 70%), var(--bg);
-            background-attachment: fixed;
+        .sa-nav-link:hover .sa-nav-icon {
+            color: #B8C0FF;
         }
+    }
 
-        h1, h2, h3, h4 {
-            font-family: 'Source Serif 4', Georgia, serif;
-        }
+    .sa-nav-link.active {
+        color: #fff;
+        font-weight: 600;
+        background: linear-gradient(100deg, rgba(75,95,214,.31), rgba(75,95,214,.12));
+        border-color: rgba(141,155,240,.25);
+        box-shadow: inset 3px 0 0 var(--sa-accent-light);
+    }
 
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
+    .sa-nav-link.active .sa-nav-icon {
+        color: #B8C0FF;
+    }
 
-        :focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
+    .sa-sidebar-bottom {
+        flex-shrink: 0;
+        padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+        background: rgba(8,10,32,.22);
+        border-top: 1px solid var(--sa-line);
+    }
 
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
+    .sa-logout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 44px;
+        padding: 9px 12px;
+        color: #F3B9C1;
+        background: rgba(239,68,68,.07);
+        border: 1px solid rgba(248,113,113,.17);
+        border-radius: var(--r-field, 10px);
+        font-family: var(--font-sans);
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .18s ease, border-color .18s ease;
+    }
 
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,.18);
-            border-radius: 99px;
-        }
+    .sa-logout:hover,
+    .sa-logout:active {
+        color: #fff;
+        background: rgba(220,38,38,.2);
+        border-color: rgba(248,113,113,.4);
+    }
 
+    .sa-sidebar-version {
+        margin-top: 10px;
+        color: #737DA6;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        text-align: center;
+        letter-spacing: .03em;
+    }
 
-        /* ---------- Komponen dasar ---------- */
+    /* Fokus keyboard yang jelas dengan warna indigo */
+    #sidebar a:focus-visible,
+    #sidebar button:focus-visible {
+        outline: 2px solid var(--sa-accent-light);
+        outline-offset: 2px;
+    }
 
-        .card {
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            box-shadow:
-                0 1px 2px rgba(15,39,71,.05),
-                0 8px 24px -16px rgba(15,39,71,.18);
-        }
-
-        .ico {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: var(--accent-soft);
-            color: var(--accent);
-        }
-
-        .h-title {
-            font-size: .9rem;
-            font-weight: 700;
-            color: var(--ink);
-        }
-
-        .h-sub {
-            font-size: .75rem;
-            color: var(--ink-3);
-            margin-top: 2px;
-        }
-
-
-        /* ---------- Header ---------- */
-
-        .topbar::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
+    /* Desktop: sidebar menetap di sisi kiri */
+    @media (min-width: 1024px) {
+        #sidebar {
+            position: sticky;
             top: 0;
-            height: 3px;
-            background: linear-gradient(
-                90deg,
-                var(--ind-950) 0%,
-                var(--accent) 55%,
-                #2B78E0 100%
-            );
+            flex: 0 0 var(--sa-width);
+            width: var(--sa-width);
+            height: 100vh;
+            visibility: visible;
+            transform: none;
+            box-shadow: none;
         }
 
-        .role-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: var(--accent-soft);
-            border: 1px solid var(--accent-line);
-            color: var(--accent);
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .02em;
+        #sidebar-overlay {
+            display: none;
+        }
+    }
+
+    /* HP dengan layar pendek (mode landscape): beri ruang lebih untuk menu */
+    @media (max-height: 560px) {
+        .sa-sidebar-version {
+            display: none;
         }
 
-
-        /* ---------- Banner: pola garis kisi dan panel total akun ---------- */
-
-        .hero {
-            position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-            padding: 28px;
-            color: #fff;
-            background: linear-gradient(
-                125deg,
-                #0E1030 0%,
-                #1A1D52 50%,
-                #3B4BC0 100%
-            );
-            box-shadow: 0 18px 40px -18px rgba(40,50,160,.6);
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background-image:
-                linear-gradient(
-                    rgba(255,255,255,.07) 1px,
-                    transparent 1px
-                ),
-                linear-gradient(
-                    90deg,
-                    rgba(255,255,255,.07) 1px,
-                    transparent 1px
-                );
-            background-size: 32px 32px;
-            -webkit-mask-image: linear-gradient(
-                100deg,
-                transparent 20%,
-                #000 100%
-            );
-            mask-image: linear-gradient(
-                100deg,
-                transparent 20%,
-                #000 100%
-            );
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            width: 420px;
-            height: 420px;
-            right: -120px;
-            top: -170px;
-            border-radius: 50%;
-            pointer-events: none;
-            background: radial-gradient(
-                circle,
-                rgba(141,155,240,.42),
-                transparent 68%
-            );
-        }
-
-        .hero > .in {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 8px;
-            background: rgba(255,255,255,.1);
-            border: 1px solid rgba(255,255,255,.2);
-            font-size: .74rem;
-            font-weight: 600;
-            letter-spacing: .03em;
-        }
-
-        .btn-white {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 11px 18px;
-            border-radius: 10px;
-            background: #fff;
-            color: var(--ind-900);
-            font-size: .82rem;
-            font-weight: 700;
-            box-shadow: 0 10px 20px -10px rgba(0,0,0,.35);
-            transition: background .15s, transform .12s;
-        }
-
-        .btn-white:hover {
-            background: var(--accent-soft);
-        }
-
-        .btn-ghost-light {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 11px 18px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,.4);
-            color: #fff;
-            font-size: .82rem;
-            font-weight: 700;
-            transition: background .15s;
-        }
-
-        .btn-ghost-light:hover {
-            background: rgba(255,255,255,.14);
-        }
-
-        .btn-white:active,
-        .btn-ghost-light:active {
-            transform: scale(.98);
-        }
-
-        .glass {
-            border-radius: 14px;
-            padding: 16px 18px;
-            background: rgba(255,255,255,.1);
-            border: 1px solid rgba(255,255,255,.2);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            min-width: 210px;
-        }
-
-
-        /* ---------- Strip angka: satu kartu menyatu, dibagi garis tipis ---------- */
-
-        .strip {
-            display: grid;
-            grid-template-columns: 1fr;
-            overflow: hidden;
-        }
-
-        .strip a {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 18px 20px;
-            transition: background .18s;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .strip a:last-child {
-            border-bottom: 0;
-        }
-
-        .strip a:hover {
-            background: #FAFBFE;
-        }
-
-        .strip a::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -1px;
-            height: 3px;
-            background: var(--c);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform .25s;
-        }
-
-        .strip a:hover::after {
-            transform: scaleX(1);
-        }
-
-        .strip .tile {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: var(--cs);
-            color: var(--c);
-        }
-
-        .strip .num {
-            font-size: 1.75rem;
-            font-weight: 800;
-            line-height: 1.05;
-            color: var(--c);
-        }
-
-        @media (min-width: 560px) {
-            .strip {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .strip a {
-                border-bottom: 1px solid var(--line);
-            }
-
-            .strip a:nth-child(odd) {
-                border-right: 1px solid var(--line);
-            }
-
-            .strip a:nth-last-child(-n+2) {
-                border-bottom: 0;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            .strip {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .strip a,
-            .strip a:nth-child(odd),
-            .strip a:nth-last-child(-n+2) {
-                border-bottom: 0;
-                border-right: 1px solid var(--line);
-            }
-
-            .strip a:last-child {
-                border-right: 0;
-            }
-        }
-
-
-        /* ---------- Aksi cepat: ubin dengan ikon di atas ---------- */
-
-        .quick {
-            position: relative;
-            display: block;
-            padding: 16px;
-            border-radius: 14px;
-            border: 1px solid var(--line);
-            background: #fff;
-            transition: .18s;
-        }
-
-        .quick:hover {
-            border-color: #B8C2F2;
-            background: var(--accent-soft);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px -16px rgba(75,95,214,.55);
-        }
-
-        .quick .qi {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--brand-soft);
-            color: var(--brand);
-            transition: .18s;
-        }
-
-        .quick:hover .qi {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .quick .qt {
-            display: block;
+        .sa-brand {
             margin-top: 14px;
-            font-size: .86rem;
-            font-weight: 700;
-            color: var(--ink);
-            line-height: 1.3;
         }
+    }
 
-        .quick .qs {
-            display: block;
-            margin-top: 3px;
-            font-size: .74rem;
-            color: var(--ink-3);
+    @media (prefers-reduced-motion: reduce) {
+        #sidebar,
+        #sidebar-overlay,
+        .sa-nav-link,
+        .sa-nav-link .sa-nav-icon,
+        .sa-logout {
+            transition: none !important;
         }
+    }
+</style>
 
-        .quick .go {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            color: #B4C0D2;
-            transition: .18s;
-        }
-
-        .quick:hover .go {
-            color: var(--accent);
-            transform: translate(2px, -2px);
-        }
-
-
-        /* ---------- Batang proporsi ---------- */
-
-        .bar {
-            position: relative;
-            height: 12px;
-            border-radius: 99px;
-            background: #EDF1F7;
-            overflow: hidden;
-        }
-
-        .bar > i {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: calc(var(--p) * 1%);
-            min-width: 0;
-            border-radius: 99px;
-            background: linear-gradient(
-                90deg,
-                #8D6BE0,
-                var(--act)
-            );
-        }
-
-
-        @media (max-width: 479px) {
-            .hero {
-                padding: 22px 18px;
-            }
-
-            .glass {
-                min-width: 0;
-                width: 100%;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            #sidebar,
-            .quick,
-            .quick .go,
-            .quick .qi,
-            .strip a,
-            .strip a::after {
-                transition: none !important;
-            }
-        }
-    </style>
-</head>
-
-
-<body class="flex min-h-screen">
-
-
-{{-- ================= SIDEBAR ================= --}}
-@include('partials.sidebar_superadmin')
-
-
-{{-- ================= MAIN ================= --}}
-<main class="flex-1 min-w-0 flex flex-col">
-
-    <header class="topbar h-16 bg-white/90 backdrop-blur-md border-b border-[#E3E8F0] flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
-
-        <div class="flex items-center gap-3">
-
-            <button
-                id="hamburger-btn"
-                onclick="openSidebar()"
-                aria-label="Buka menu"
-                class="w-9 h-9 rounded-lg border border-[#E3E8F0] flex items-center justify-center hover:bg-[#ECEFFC] transition-colors lg:hidden"
-            >
-                <span
-                    class="material-symbols-outlined text-[#475569]"
-                    style="font-size:20px"
-                >
-                    menu
+<aside id="sidebar" aria-label="Navigasi Super Admin">
+    <div class="sa-brand">
+        <a href="{{ Route::has('superadmin.dashboard') ? route('superadmin.dashboard') : url('/') }}"
+           class="sa-brand-link"
+           aria-label="Dashboard Super Admin">
+            @if($logoSidebar)
+                <span class="sa-brand-logo">
+                    <img src="{{ $logoSidebar }}" alt="Logo SMPN 216 Jakarta">
                 </span>
-            </button>
-
-            <div>
-                <h2 class="text-base md:text-lg font-bold text-[#14233B] leading-tight">
-                    Dashboard Super Admin
-                </h2>
-
-                <p class="text-xs text-[#6B7A90] hidden sm:block">
-                    Kelola seluruh data sistem MindCheck
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="flex items-center gap-2">
-
-            <span class="role-pill hidden md:inline-flex">
-                <span
-                    class="material-symbols-outlined"
-                    style="font-size:15px"
-                >
-                    shield_person
+            @else
+                <span class="sa-brand-logo">
+                    <span class="material-symbols-outlined" style="font-size:30px;color:#8D9BF0">school</span>
                 </span>
+            @endif
 
-                Super Admin
+            <span class="sa-brand-text">
+                <span class="sa-brand-name">SMPN 216 Jakarta</span>
+                <span class="sa-brand-caption">Sistem Informasi MindCheck</span>
             </span>
-
-            <span class="text-xs font-medium text-[#475569] hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F3F5F9] border border-[#E3E8F0]">
-
-                <span
-                    class="material-symbols-outlined"
-                    style="font-size:16px"
-                >
-                    calendar_today
-                </span>
-
-                {{ $sekarang->isoFormat('dddd, D MMMM Y') }}
-
-            </span>
-
-        </div>
-
-    </header>
-
-
-    <div class="flex-1 p-4 md:p-8 space-y-6 max-w-[1400px] w-full mx-auto">
-
-        @if(session('success'))
-        <div
-            class="bg-[#E3F5ED] border border-[#A7F3D0] text-[#0F8A5F] text-sm font-semibold rounded-xl px-4 py-3"
-            role="status"
-        >
-            {{ session('success') }}
-        </div>
-        @endif
-
-
-        {{-- ===== Banner ===== --}}
-        <section class="hero">
-
-            <div class="in flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-
-                <div class="min-w-0 max-w-2xl">
-
-                    <span class="hero-chip">
-
-                        <span
-                            class="material-symbols-outlined"
-                            style="font-size:16px"
-                        >
-                            verified_user
-                        </span>
-
-                        AKSES PENUH SISTEM
-
-                    </span>
-
-
-                    <h3 class="text-2xl md:text-3xl font-extrabold mt-3 leading-tight">
-                        Halo, {{ $namaDepan }}
-                    </h3>
-
-
-                    <p class="text-sm text-indigo-100 mt-2 leading-relaxed">
-                        Kelola akun Guru BK dan siswa, pantau data kuesioner SDQ, dan atur tampilan portal dari satu tempat.
-                    </p>
-
-
-                    <div class="flex flex-wrap gap-3 mt-5">
-
-                        <a
-                            href="{{ route('superadmin.guru.create') }}"
-                            class="btn-white"
-                        >
-                            <span
-                                class="material-symbols-outlined"
-                                style="font-size:18px"
-                            >
-                                person_add
-                            </span>
-
-                            Tambah Guru BK
-                        </a>
-
-
-                        <a
-                            href="{{ route('superadmin.siswa.index') }}"
-                            class="btn-ghost-light"
-                        >
-                            <span
-                                class="material-symbols-outlined"
-                                style="font-size:18px"
-                            >
-                                school
-                            </span>
-
-                            Kelola siswa
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <div class="glass flex-shrink-0">
-
-                    <p class="text-[11px] font-semibold tracking-wider uppercase text-indigo-200">
-                        Total akun terdaftar
-                    </p>
-
-                    <p class="text-3xl font-extrabold mt-1 leading-none">
-                        {{ number_format($totalAkun) }}
-                    </p>
-
-                    <div class="mt-3 pt-3 border-t border-white/15 flex items-center justify-between text-xs text-indigo-100">
-                        <span>
-                            {{ number_format($totalGuru) }} Guru BK
-                        </span>
-
-                        <span>
-                            {{ number_format($totalSiswa) }} siswa
-                        </span>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        {{-- ===== Ringkasan angka (satu strip menyatu) ===== --}}
-        <section
-            class="card strip"
-            aria-label="Ringkasan angka"
-        >
-
-            @foreach($stats as $st)
-
-            <a
-                href="{{ $st['href'] }}"
-                style="--c:{{ $st['c'] }};--cs:{{ $st['cs'] }}"
-            >
-
-                <span class="tile">
-
-                    <span
-                        class="material-symbols-outlined"
-                        style="font-size:24px"
-                    >
-                        {{ $st['icon'] }}
-                    </span>
-
-                </span>
-
-
-                <span class="min-w-0">
-
-                    <span class="num block">
-                        {{ number_format($st['val']) }}
-                    </span>
-
-                    <span class="block text-[13px] font-semibold text-[#14233B] mt-1">
-                        {{ $st['label'] }}
-                    </span>
-
-                    <span class="block text-[11.5px] text-[#6B7A90] mt-0.5">
-                        {{ $st['sub'] }}
-                    </span>
-
-                </span>
-
-            </a>
-
-            @endforeach
-
-        </section>
-
-
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-
-            {{-- ===== Aksi cepat ===== --}}
-            <section class="card p-5 md:p-6 xl:col-span-2">
-
-                <div class="flex items-start gap-3">
-
-                    <span class="ico">
-                        <span
-                            class="material-symbols-outlined"
-                            style="font-size:20px"
-                        >
-                            bolt
-                        </span>
-                    </span>
-
-                    <div>
-
-                        <h4 class="h-title">
-                            Aksi cepat
-                        </h4>
-
-                        <p class="h-sub">
-                            Tugas yang paling sering dilakukan.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3 md:gap-4 mt-5">
-
-                    @foreach($aksi as $a)
-
-                    <a
-                        href="{{ $a['href'] }}"
-                        class="quick"
-                    >
-
-                        <span class="qi">
-
-                            <span
-                                class="material-symbols-outlined"
-                                style="font-size:22px"
-                            >
-                                {{ $a['icon'] }}
-                            </span>
-
-                        </span>
-
-
-                        <span
-                            class="material-symbols-outlined go"
-                            style="font-size:20px"
-                        >
-                            arrow_outward
-                        </span>
-
-
-                        <span class="qt">
-                            {{ $a['t'] }}
-                        </span>
-
-                        <span class="qs">
-                            {{ $a['s'] }}
-                        </span>
-
-                    </a>
-
-                    @endforeach
-
-                </div>
-
-            </section>
-
-
-            {{-- ===== Ringkasan sistem ===== --}}
-            <section class="card p-5 md:p-6">
-
-                <div class="flex items-start gap-3">
-
-                    <span class="ico">
-
-                        <span
-                            class="material-symbols-outlined"
-                            style="font-size:20px"
-                        >
-                            insights
-                        </span>
-
-                    </span>
-
-                    <div>
-
-                        <h4 class="h-title">
-                            Ringkasan sistem
-                        </h4>
-
-                        <p class="h-sub">
-                            Gambaran singkat dari data saat ini.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="mt-6">
-
-                    <div class="flex items-end justify-between gap-3">
-
-                        <div class="min-w-0">
-
-                            <p class="text-xs font-semibold text-[#475569]">
-                                Proporsi kasus abnormal
-                            </p>
-
-                            <p class="text-sm font-bold text-[#14233B] mt-1">
-                                {{ number_format($cntAbnormal) }}
-                                dari
-                                {{ number_format($totalKuesioner) }}
-                                pengisian
-                            </p>
-
-                        </div>
-
-
-                        <p class="text-2xl font-extrabold text-[#6D3FD0] leading-none">
-                            {{ $persenAbn }}%
-                        </p>
-
-                    </div>
-
-
-                    <div
-                        class="bar mt-3"
-                        style="--p:{{ $persenAbn }}"
-                        role="img"
-                        aria-label="Kasus abnormal {{ $persenAbn }} persen"
-                    >
-                        <i></i>
-                    </div>
-
-                </div>
-
-
-                <div class="mt-6 pt-5 border-t border-[#E3E8F0] space-y-3">
-
-                    <div class="flex items-center justify-between text-sm">
-
-                        <span class="text-[#6B7A90]">
-                            Siswa per Guru BK
-                        </span>
-
-                        <span class="font-bold text-[#14233B]">
-                            {{ $rasio !== null ? $rasio : '-' }}
-                        </span>
-
-                    </div>
-
-
-                    <div class="flex items-center justify-between text-sm">
-
-                        <span class="text-[#6B7A90]">
-                            Rata-rata pengisian per siswa
-                        </span>
-
-                        <span class="font-bold text-[#14233B]">
-                            {{ $rataIsi }}
-                        </span>
-
-                    </div>
-
-
-                    <div class="flex items-center justify-between text-sm">
-
-                        <span class="text-[#6B7A90]">
-                            Total akun terdaftar
-                        </span>
-
-                        <span class="font-bold text-[#14233B]">
-                            {{ number_format($totalAkun) }}
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <footer class="pt-4 border-t border-[#E3E8F0] flex justify-between items-center flex-wrap gap-2">
-
-            <p class="text-xs text-[#6B7A90]">
-                © {{ date('Y') }} SMPN 216 Jakarta — Portal Skrining Kesehatan Mental Siswa
-            </p>
-
-            <p class="text-xs text-[#6B7A90]">
-                Super Admin Panel
-            </p>
-
-        </footer>
-
+        </a>
     </div>
 
-</main>
+    <span class="sa-badge">
+        <span class="material-symbols-outlined" style="font-size:14px">shield_person</span>
+        Super Admin
+    </span>
 
-</body>
-</html>
+    <nav class="sa-nav" aria-label="Menu utama">
+        @foreach($menuSuperAdmin as $grup)
+            <div class="sa-nav-group">
+                <span class="sa-nav-heading">{{ $grup['judul'] }}</span>
+
+                @foreach($grup['items'] as $item)
+                    @php
+                        $routeTersedia = \Illuminate\Support\Facades\Route::has($item['route']);
+                        $aktif = collect($item['match'])
+                            ->contains(fn ($pattern) => request()->routeIs($pattern));
+                    @endphp
+
+                    @if($routeTersedia)
+                        <a href="{{ route($item['route']) }}"
+                           class="sa-nav-link {{ $aktif ? 'active' : '' }}"
+                           @if($aktif) aria-current="page" @endif>
+                            <span class="sa-nav-icon">
+                                <span class="material-symbols-outlined">{{ $item['icon'] }}</span>
+                            </span>
+                            <span>{{ $item['label'] }}</span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        @endforeach
+    </nav>
+
+    <div class="sa-sidebar-bottom">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="sa-logout">
+                <span class="material-symbols-outlined" style="font-size:18px">logout</span>
+                Keluar dari akun
+            </button>
+        </form>
+
+        <div class="sa-sidebar-version">
+            MINDCHECK · SMPN 216 JAKARTA
+        </div>
+    </div>
+</aside>
+
+<script>
+    function openSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if (!sidebar || !overlay) return;
+
+        sidebar.classList.add('open');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if (!sidebar || !overlay) return;
+
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    // Tanpa tombol X, sidebar ditutup dengan menyentuh area gelap di luar sidebar
+    (function () {
+        const overlay = document.getElementById('sidebar-overlay');
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+    })();
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeSidebar();
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth >= 1024) closeSidebar();
+    });
+</script>

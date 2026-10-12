@@ -23,8 +23,13 @@
             --ink-3: #6B7A90;
             --line: #E3E8F0;
 
+            /* Warna status: hijau = Normal, kuning = Borderline, merah = Abnormal */
             --ok: #0F8A5F;
             --ok-bg: #E3F5ED;
+            --warn: #B7690B;
+            --warn-bg: #FDF1DC;
+            --act: #C8303C;
+            --act-bg: #FDECEE;
         }
 
         body {
@@ -112,6 +117,16 @@
         .b-ok {
             background: var(--ok-bg);
             color: var(--ok);
+        }
+
+        .b-warn {
+            background: var(--warn-bg);
+            color: var(--warn);
+        }
+
+        .b-act {
+            background: var(--act-bg);
+            color: var(--act);
         }
 
         .b-brand {
@@ -231,6 +246,47 @@
                 transition: none !important;
             }
         }
+
+        /* =========================================================
+           Perapian tampilan mobile
+           ========================================================= */
+
+        @media (max-width: 639px) {
+            .hero {
+                padding: 22px 18px;
+                border-radius: 16px;
+            }
+
+            .hero-ring.r1 {
+                width: 260px;
+                height: 260px;
+                right: -100px;
+                top: -110px;
+            }
+
+            .hero-ring.r2 {
+                display: none;
+            }
+
+            .meta {
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .card {
+                border-radius: 12px;
+            }
+
+            .year-row {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .year-badge {
+                width: 40px;
+                height: 40px;
+            }
+        }
     </style>
 </head>
 
@@ -279,7 +335,7 @@
 
     </header>
 
-    <div class="flex-1 p-4 md:p-8 space-y-6 max-w-6xl w-full mx-auto">
+    <div class="flex-1 p-4 md:p-8 space-y-5 md:space-y-6 max-w-6xl w-full mx-auto">
 
         {{-- ============ Banner ringkasan ============ --}}
 
@@ -339,7 +395,7 @@
             aria-labelledby="judul-arsip"
         >
 
-            <div class="px-5 md:px-6 py-4 border-b border-[#E3E8F0] flex items-center gap-3 bg-[#F7F9FC]">
+            <div class="px-4 sm:px-5 md:px-6 py-4 border-b border-[#E3E8F0] flex items-center gap-3 bg-[#F7F9FC]">
 
                 <span class="ico">
                     <span

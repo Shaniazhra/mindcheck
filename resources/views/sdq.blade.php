@@ -171,9 +171,8 @@
         .eyebrow { display: flex; align-items: center; gap: 12px; }
         .eyebrow-logo {
             width: 46px; height: 46px; flex-shrink: 0;
-            border-radius: 50%; background: #fff; border: 1.5px solid var(--line);
-            padding: 5px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 18px -12px rgba(29,95,191,.55);
+            background: transparent; border: none; box-shadow: none;
+            padding: 0; display: flex; align-items: center; justify-content: center;
         }
         .eyebrow-logo img { width: 100%; height: 100%; object-fit: contain; }
         .eyebrow-text { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); line-height: 1.4; }
@@ -181,7 +180,7 @@
 
         .intro h1 {
             margin-top: 26px;
-            font-size: clamp(2rem, 4.6vw, 3.1rem);
+            font-size: clamp(1.5rem, 2.6vw, 2rem);
             font-weight: 800; line-height: 1.12; letter-spacing: -.02em;
             color: var(--navy);
             outline: none;
@@ -191,7 +190,6 @@
             -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent; color: transparent;
         }
-        .accent { width: 56px; height: 4px; border-radius: 4px; margin-top: 18px; background: linear-gradient(90deg, var(--navy-mid), var(--brand-mid)); }
         .intro .lead { margin-top: 18px; max-width: 460px; font-size: .95rem; line-height: 1.8; color: var(--ink-2); }
 
         .intro-cta { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
@@ -375,6 +373,56 @@
             .actions .btn { flex: 1; }
             .actions .spacer { display: none; }
         }
+        /* ============ Perapian tampilan mobile ============ */
+        @media (max-width: 640px) {
+            .topbar { height: 60px; padding: 0 12px; gap: 10px; }
+            .back-btn { width: 36px; height: 36px; }
+            .head-title { font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .head-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+            .wrap { padding: 20px 16px calc(28px + env(safe-area-inset-bottom, 0px)); }
+
+            /* Panduan awal */
+            .intro { gap: 26px; padding: 0; }
+            .intro-side { padding-top: 24px; border-top: 1px solid var(--line); }
+            .eyebrow-logo { width: 40px; height: 40px; }
+            .intro h1 { margin-top: 20px; }
+            .intro .lead { margin-top: 12px; font-size: .9rem; line-height: 1.7; max-width: none; }
+            .intro-cta { margin-top: 22px; }
+            .facts li { padding: 14px 12px 14px 0; gap: 8px; }
+            .facts li:nth-child(even) { padding-left: 14px; }
+            .f-ico { width: 34px; height: 34px; border-radius: 10px; }
+            .f-ico .material-symbols-outlined { font-size: 19px; }
+            .facts b { font-size: .82rem; }
+            .facts span.s { font-size: .72rem; }
+            .guide-title { margin-top: 24px; }
+            .timeline li { padding-left: 46px; padding-bottom: 18px; }
+            .timeline p { max-width: none; font-size: .82rem; }
+
+            /* Pertanyaan */
+            .card { padding: 20px 16px; border-radius: 16px; }
+            .q-head { flex-wrap: wrap; row-gap: 6px; }
+            .q-left { font-size: .72rem; }
+            .q-text { font-size: 1.05rem; line-height: 1.5; margin: 14px 0 18px; }
+            .options { gap: 8px; }
+            .opt { padding: 14px; gap: 12px; font-size: .9rem; border-radius: 12px; }
+            .actions { margin-top: 20px; }
+
+            /* Layar selesai */
+            .ico { width: 40px; height: 40px; border-radius: 12px; }
+            .done-title { font-size: 1.05rem; }
+            .done-text { font-size: .84rem; }
+            .review { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; }
+            .rv { height: 38px; border-radius: 10px; }
+
+            /* Footer */
+            .foot { flex-direction: column; align-items: center; text-align: center; margin-top: 26px; }
+        }
+        @media (max-width: 380px) {
+            .actions { flex-direction: column-reverse; align-items: stretch; }
+            .actions .btn { width: 100%; }
+        }
+
         /* Layar sentuh: petunjuk tombol keyboard tidak diperlukan */
         @media (pointer: coarse) {
             .opt .k, .tip { display: none; }
@@ -424,7 +472,6 @@
                     </div>
 
                     <h1 tabindex="-1" data-focus>Siap mengisi <span class="hl">kuesioner</span>?</h1>
-                    <div class="accent" aria-hidden="true"></div>
                     <p class="lead">Kamu akan menjawab 25 pernyataan singkat, satu per satu. Jawablah sesuai dengan yang benar-benar kamu rasakan. Tidak ada jawaban yang benar atau salah.</p>
 
                     <div class="intro-cta">

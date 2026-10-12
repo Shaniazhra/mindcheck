@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TahunAjaran;
+use App\Support\TahunAjaran;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\URL;
 
 class AuthController extends Controller
@@ -156,12 +156,14 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // 'tahun_ajaran' sengaja tidak divalidasi dari input:
-        // nilainya dihitung server lewat TahunAjaran::sekarang().
+        // 'tahun_ajaran' dan 'angkatan' sengaja tidak diambil dari input:
+        // - tahun_ajaran = tahun ajaran berjalan, SAMA untuk semua kelas
+        // - angkatan     = tahun masuk, dihitung dari tingkat kelas
+        //                  (kelas 7 = tahun ini, 8 = -1, 9 = -2)
         $request->validate([
             'nama'          => 'required|string|max:255',
             'nis'           => 'required|string|max:20|unique:users,nis',
-            'kelas'         => 'required|string|max:50',
+            'kelas'         => ['required', 'string', 'max:50', 'regex:/^[7-9]-\d{1,2}$/'],
             'jenis_kelamin' => 'required|in:L,P',
             'no_telp'       => 'required|string|max:20',
             'email'         => 'required|email|unique:users,email',
@@ -180,6 +182,7 @@ class AuthController extends Controller
             'nis'           => $request->nis,
             'kelas'         => $request->kelas,
             'tahun_ajaran'  => TahunAjaran::sekarang(),
+            'angkatan'      => TahunAjaran::angkatanDariKelas($request->kelas),
             'jenis_kelamin' => $request->jenis_kelamin,
             'no_telp'       => $request->no_telp,
             'email'         => $request->email,
@@ -241,15 +244,53 @@ class AuthController extends Controller
 
     /**
      * Memproses tautan verifikasi email.
+     *
+     * Tidak perlu login. Keamanan dijaga oleh middleware "signed"
+     * di rute dan pencocokan hash email di bawah ini.
      */
-    public function verificationVerify(EmailVerificationRequest $request)
+    public function verificationVerify(Request $request, $id, $hash)
     {
-        if (!$request->user()->hasVerifiedEmail()) {
-            $request->fulfill();
+        $user = User::findOrFail($id);
+
+        if (!hash_equals(sha1($user->getEmailForVerification()), (string) $hash)) {
+            abort(403);
         }
 
-        return redirect('/')
-            ->with('success', 'Email berhasil diverifikasi. Silakan masuk untuk melanjutkan.');
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new Verified($user));
+        }
+
+        // Jika tautan dibuka di browser yang sama dengan akun ini, keluarkan dulu
+        // supaya halaman login tidak melempar langsung ke dashboard.
+        if (Auth::check() && (int) Auth::id() === (int) $user->id) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        return redirect()->route('verification.done');
+    }
+
+    /**
+     * Halaman singkat setelah tautan di email dibuka.
+     */
+    public function verificationDone()
+    {
+        return view('auth.verified');
+    }
+
+    /**
+     * Dicek berkala oleh halaman "Periksa emailmu" untuk tahu apakah
+     * tautan di email sudah dibuka.
+     */
+    public function verificationStatus($id)
+    {
+        $user = User::findOrFail($id);
+
+        return response()->json([
+            'verified' => $user->hasVerifiedEmail(),
+        ]);
     }
 
     /**
