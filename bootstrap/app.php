@@ -16,8 +16,22 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureRole::class,
         ]);
 
+        // Aktifkan HANYA jika server berada di belakang proxy / load balancer /
+        // Cloudflare (supaya https dan IP pengunjung terbaca benar, dan link
+        // verifikasi email tidak ditolak). Jangan aktifkan kalau tidak perlu.
+        // $middleware->trustProxies(at: '*');
+
         $middleware->redirectGuestsTo(function (Request $request) {
-            if ($request->is('dashboard', 'riwayat', 'riwayat/*', 'kelas', 'kelas/*', 'super-admin/*')) {
+            if ($request->is(
+                'dashboard',
+                'riwayat',
+                'riwayat/*',
+                'riwayat_angkatan',
+                'riwayat_angkatan/*',
+                'kelas',
+                'kelas/*',
+                'super-admin/*'
+            )) {
                 return '/login-guru';
             }
 

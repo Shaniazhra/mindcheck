@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use App\Models\HasilSdq;
 use App\Support\TahunAjaran;
 
@@ -22,8 +23,10 @@ class SdqController extends Controller
      */
     private function flaskUrl()
     {
-        return env(
-            'FLASK_SDQ_URL',
+        // Lewat config (bukan env() langsung) supaya tetap terbaca
+        // setelah "php artisan config:cache" di server produksi.
+        return config(
+            'services.flask.sdq_url',
             'http://127.0.0.1:5000/sdq'
         );
     }
@@ -107,6 +110,24 @@ class SdqController extends Controller
     public function submit(Request $request)
     {
         $user = Auth::user();
+
+        // 25 jawaban wajib ada dan hanya bernilai 0, 1, atau 2.
+        // Tanpa ini, nilai di luar rentang (mis. 99 atau -5) bisa dikirim
+        // manual dan merusak skor, dan jawaban kosong diam-diam dianggap 0.
+        $aturan = [];
+        for ($i = 1; $i <= 25; $i++) {
+            $aturan["sdq$i"] = ['required', 'integer', 'in:0,1,2'];
+        }
+
+        $validator = Validator::make($request->all(), $aturan);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Semua 25 pernyataan wajib dijawab.');
+        }
 
         $lock = Cache::lock('sdq_submit_' . $user->id, 30);
 

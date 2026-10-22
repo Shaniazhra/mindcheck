@@ -6,6 +6,10 @@ use App\Http\Controllers\SdqController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SuperAdminController;
 
+// {id} dan {laporan_id} wajib angka. Selain angka langsung 404.
+Route::pattern('id', '[0-9]+');
+Route::pattern('laporan_id', '[0-9]+');
+
 // Redirect root ke welcome
 Route::get('/', function () {
     return view('welcome');
@@ -16,7 +20,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'registerForm']);
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:30,1');
     Route::get('/forgot-password', [AuthController::class, 'forgotForm'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'forgotSend'])->middleware('throttle:5,1')->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'resetForm'])->name('password.reset');

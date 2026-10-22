@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class AuthController extends Controller
 {
@@ -26,11 +29,28 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        // Batasi percobaan per email + IP (bukan per IP saja), supaya satu lab
+        // komputer sekolah dengan IP yang sama tidak saling memblokir.
+        $kunci = 'login-siswa|' . Str::lower($credentials['email']) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($kunci, 5)) {
+            $detik = RateLimiter::availableIn($kunci);
+
+            return back()
+                ->withErrors([
+                    'email' => "Terlalu banyak percobaan masuk. Coba lagi dalam {$detik} detik.",
+                ])
+                ->withInput($request->only('email'));
+        }
+
         if (Auth::attempt($credentials)) {
+            RateLimiter::clear($kunci);
             $request->session()->regenerate();
 
             return $this->redirectSetelahLogin($request);
         }
+
+        RateLimiter::hit($kunci, 60);
 
         return back()
             ->withErrors([
@@ -76,9 +96,9 @@ class AuthController extends Controller
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email',
-            'password' => 'required|min:6|confirmed',
+            'password' => ['required', 'confirmed', PasswordRule::min(8)],
         ], [
-            'password.min'       => 'Password minimal 6 karakter.',
+            'password.min'       => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
@@ -165,16 +185,17 @@ class AuthController extends Controller
             'nis'           => 'required|string|max:20|unique:users,nis',
             'kelas'         => ['required', 'string', 'max:50', 'regex:/^[7-9]-\d{1,2}$/'],
             'jenis_kelamin' => 'required|in:L,P',
-            'no_telp'       => 'required|string|max:20',
+            'no_telp'       => ['required', 'string', 'max:20', 'regex:/^\+?[0-9\s\-]{8,20}$/'],
             'email'         => 'required|email|unique:users,email',
-            'password'      => 'required|min:6|confirmed',
+            'password'      => ['required', 'confirmed', PasswordRule::min(8)],
         ], [
             'nis.required'       => 'NIS wajib diisi.',
             'nis.unique'         => 'NIS ini sudah terdaftar.',
             'no_telp.required'   => 'Nomor telepon wajib diisi.',
+            'no_telp.regex'      => 'Format nomor HP tidak valid. Gunakan angka saja, contoh: 081234567890.',
             'email.unique'       => 'Email ini sudah terdaftar.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'password.min'       => 'Password minimal 6 karakter.',
+            'password.min'       => 'Password minimal 8 karakter.',
         ]);
 
         $user = User::create([

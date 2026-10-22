@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    /*
+    | Server Flask (Naive Bayes SDQ). Dibaca SdqController lewat
+    | config('services.flask.sdq_url'), jadi tetap jalan setelah config:cache.
+    | Di .env cukup: FLASK_SDQ_URL=http://127.0.0.1:5000/sdq
+    */
+    'flask' => [
+        'sdq_url' => env('FLASK_SDQ_URL', 'http://127.0.0.1:5000/sdq'),
+    ],
+
 ];

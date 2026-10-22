@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
@@ -70,6 +71,16 @@ class DashboardController extends Controller
      */
     public function riwayat(Request $request)
     {
+        // Input filter harus teks biasa. Tanpa ini, ?nama[]=x membuat trim()
+        // melempar error 500.
+        $request->validate([
+            'nama'         => 'nullable|string|max:100',
+            'kelas'        => 'nullable|string|max:20',
+            'tahun_ajaran' => 'nullable|string|max:20',
+            'status'       => 'nullable|string|max:30',
+            'risiko_ai'    => 'nullable|string|max:10',
+        ]);
+
         $query = HasilSdq::with('user')->latest();
 
         if ($request->filled('nama')) {
@@ -254,12 +265,13 @@ class DashboardController extends Controller
         $s = HasilSdq::findOrFail($id);
 
         $data = $request->validate([
-            'rekomendasi'     => 'required|string|min:10',
+            'rekomendasi'     => 'required|string|min:10|max:5000',
             'observasi'       => 'nullable|string|max:5000',
             'tanggal_laporan' => 'nullable|date',
         ], [
             'rekomendasi.required' => 'Rekomendasi Guru BK wajib diisi.',
             'rekomendasi.min'      => 'Rekomendasi Guru BK terlalu singkat.',
+            'rekomendasi.max'      => 'Rekomendasi Guru BK terlalu panjang (maks. 5000 karakter).',
         ]);
 
         $data['tanggal_laporan'] = $data['tanggal_laporan']
@@ -337,12 +349,13 @@ class DashboardController extends Controller
         [, $laporan] = $this->laporanMilikSiswa($id, $laporan_id);
 
         $data = $request->validate([
-            'rekomendasi'     => 'required|string|min:10',
+            'rekomendasi'     => 'required|string|min:10|max:5000',
             'observasi'       => 'nullable|string|max:5000',
             'tanggal_laporan' => 'nullable|date',
         ], [
             'rekomendasi.required' => 'Rekomendasi Guru BK wajib diisi.',
             'rekomendasi.min'      => 'Rekomendasi Guru BK terlalu singkat.',
+            'rekomendasi.max'      => 'Rekomendasi Guru BK terlalu panjang (maks. 5000 karakter).',
         ]);
 
         $data['tanggal_laporan'] = $data['tanggal_laporan']
@@ -424,7 +437,7 @@ class DashboardController extends Controller
             )
         )
             ->setOption([
-                'isRemoteEnabled'      => true,
+                'isRemoteEnabled'      => false,
                 'isHtml5ParserEnabled' => true,
             ])
             ->setPaper('a4', 'portrait');
@@ -435,7 +448,7 @@ class DashboardController extends Controller
         $this->gambarTandaTangan($pdf, $guruNama, $guruNip);
 
         $namaFile = 'Laporan-BK-' .
-            str_replace(' ', '-', $s->nama) .
+            Str::slug($s->nama ?: 'siswa') .
             '.pdf';
 
         return $pdf->stream($namaFile);

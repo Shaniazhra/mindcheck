@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class SuperAdminController extends Controller
 {
@@ -48,7 +49,7 @@ class SuperAdminController extends Controller
             'name'     => 'required|string|max:255',
             'nip'      => 'nullable|string|max:50',
             'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => ['required', 'string', Password::min(8)],
         ]);
 
         User::create([
@@ -76,7 +77,7 @@ class SuperAdminController extends Controller
             'name'     => 'required|string|max:255',
             'nip'      => 'nullable|string|max:50',
             'email'    => ['required', 'email', Rule::unique('users', 'email')->ignore($guru->id)],
-            'password' => 'nullable|string|min:6',
+            'password' => ['nullable', 'string', Password::min(8)],
         ]);
 
         $guru->name  = $validated['name'];
@@ -104,6 +105,12 @@ class SuperAdminController extends Controller
 
     public function siswaIndex(Request $request)
     {
+        // Filter harus teks biasa (?cari[]=x tidak boleh membuat error 500).
+        $request->validate([
+            'kelas' => 'nullable|string|max:20',
+            'cari'  => 'nullable|string|max:100',
+        ]);
+
         $query = User::where('role', 'siswa');
 
         if ($request->filled('kelas')) {
@@ -130,8 +137,8 @@ class SuperAdminController extends Controller
 
         $validated = $request->validate([
             'name'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:20',
-            'nis'   => 'nullable|string|max:50',
+            'kelas' => ['required', 'string', 'max:20', 'regex:/^[7-9]-\d{1,2}$/'],
+            'nis'   => ['nullable', 'string', 'max:50', Rule::unique('users', 'nis')->ignore($siswa->id)],
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($siswa->id)],
         ]);
 
@@ -160,7 +167,9 @@ class SuperAdminController extends Controller
         ])->save();
 
         // Keluarkan siswa dari semua perangkat (session disimpan di tabel sessions)
-        DB::table('sessions')->where('user_id', $siswa->id)->delete();
+        if (config('session.driver') === 'database') {
+            DB::table('sessions')->where('user_id', $siswa->id)->delete();
+        }
 
         // Kembali ke halaman edit siswa. Password dikirim lewat flash session
         // (key "password_baru") dan hanya tampil sekali di card pada halaman edit.
@@ -211,6 +220,11 @@ class SuperAdminController extends Controller
 
     public function kuesionerIndex(Request $request)
     {
+        $request->validate([
+            'kelas' => 'nullable|string|max:20',
+            'label' => 'nullable|string|max:30',
+        ]);
+
         $query = HasilSdq::query();
 
         if ($request->filled('kelas')) {
@@ -298,7 +312,7 @@ class SuperAdminController extends Controller
     private function updateHero(Request $request)
     {
         $request->validate([
-            'hero_new'   => ['nullable', 'array'],
+            'hero_new'   => ['nullable', 'array', 'max:' . self::MAX_HERO],
             'hero_new.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
             'hero_new.*.image' => 'File gambar beranda harus berupa gambar.',
