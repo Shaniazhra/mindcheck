@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Kuesioner — SMPN 216 Jakarta</title>
+    <title>Detail Kuesioner | SMPN 216 Jakarta</title>
     @php
         $logoUrl = \App\Models\Pengaturan::url('logo', 'logo-smpn216.png');
     @endphp

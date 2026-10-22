@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindCheck — SMPN 216 Jakarta</title>
+    <title>MindCheck | SMPN 216 Jakarta</title>
     <meta name="description" content="Portal skrining kesehatan mental siswa SMPN 216 Jakarta menggunakan instrumen SDQ. Hasil bersifat rahasia dan hanya dapat diakses Guru BK.">
     <link rel="icon" type="image/png" href="{{ $logoUrl }}">
 

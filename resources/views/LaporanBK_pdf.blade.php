@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan BK — {{ $s->nama }}</title>
+    <title>Laporan BK | {{ $s->nama }}</title>
     <link rel="icon" type="image/png" href="{{ asset('logo-smpn216.png') }}">
     <style>
         @page { margin: 1.6cm 2.2cm 2.4cm 2.2cm; }
