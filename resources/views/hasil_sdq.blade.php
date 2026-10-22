@@ -64,6 +64,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hasil Skrining | SMPN 216 Jakarta</title>
@@ -365,6 +367,8 @@
             .rise, .tone-icon { animation: none !important; }
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/icons.css') }}">
+    <script src="{{ asset('js/icons.js') }}" defer></script>
 </head>
 <body>
 

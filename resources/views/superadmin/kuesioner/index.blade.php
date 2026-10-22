@@ -100,6 +100,8 @@
         }
         @media (prefers-reduced-motion: reduce) { .btn-sa, .input, .pg-btn, .icon-btn { transition: none !important; } }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/icons.css') }}">
+    <script src="{{ asset('js/icons.js') }}" defer></script>
 </head>
 <body class="flex min-h-screen">
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>

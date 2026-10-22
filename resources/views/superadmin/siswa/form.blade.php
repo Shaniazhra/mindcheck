@@ -96,6 +96,8 @@
         /* ---------- Header ---------- */
         .topbar::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--ind-950) 0%, var(--accent) 55%, #2B78E0 100%); }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/icons.css') }}">
+    <script src="{{ asset('js/icons.js') }}" defer></script>
 </head>
 
 <body class="flex min-h-screen">

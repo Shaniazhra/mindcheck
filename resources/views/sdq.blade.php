@@ -41,6 +41,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kuesioner SDQ | SMPN 216 Jakarta</title>
@@ -435,6 +437,8 @@
     </style>
     {{-- Tanpa JavaScript: tampilkan semua langkah sekaligus agar form tetap bisa diisi --}}
     <noscript><style>.step[hidden] { display: block !important; } .intro[hidden] { display: grid !important; } .step { margin-bottom: 20px; } .btn-ghost, .review, .rv-head, .rv-note { display: none; }</style></noscript>
+    <link rel="stylesheet" href="{{ asset('css/icons.css') }}">
+    <script src="{{ asset('js/icons.js') }}" defer></script>
 </head>
 <body>
 

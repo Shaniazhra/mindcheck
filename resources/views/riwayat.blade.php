@@ -108,6 +108,8 @@
             .card { box-shadow: none; }
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/icons.css') }}">
+    <script src="{{ asset('js/icons.js') }}" defer></script>
 </head>
 <body class="flex min-h-screen">
 
